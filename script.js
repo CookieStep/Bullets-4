@@ -1,8 +1,13 @@
 function update(e) {
+	if(Date.now() < update.last + (1000/40)) {
+		update.request = requestAnimationFrame(update);
+		return;
+	}
 	player.update();
-	ctx.fillStyle = "black";
+	ctx.fillStyle = "#0005";
 	ctx.fillRect(0, 0, innerWidth, innerHeight);
 	player.draw();
+	update.last = Date.now();
 	update.request = requestAnimationFrame(update);
 }
 /**@type {Map<string, number>}*/
