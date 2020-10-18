@@ -69,6 +69,11 @@ let levels = [
 					dialogue("Come on now. Give me something better!", "white").then(() => level.set(5));
 					level.pause();
 				}
+				if(!player.alive) {
+					player = new Player().spawn();
+					enemies = [];
+					level.set(3);
+				}
 			}break;
 			case(5):{
 				if(level.time > 2000 && level.said == 0)
@@ -96,6 +101,11 @@ let levels = [
 					enemies = []; level.pause();
 					dialogue("Well, that simply won't do.", "white").then(() => level.set(6));
 				}
+				if(!player.alive) {
+					player = new Player().spawn();
+					enemies = [];
+					level.set(3);
+				}
 			}break;
 			case(6):{
 				if(level.time > 1000 && level.said == 0) {
@@ -120,6 +130,31 @@ let levels = [
 					if(Enemy.summon(new GoGo)) level.sum++;
 					if(level.sum == 10) level.say(2);
 				}
+				if(!player.alive) {
+					player = new Player().spawn();
+					player.skill = Gun(player);
+					enemies = [];
+					level.set(6);
+					level.say(1);
+				}
+				if(!enemies.length) level.set(7);
+			}break;
+			case(8):{
+				if(this.time > 1000) {
+					dialogue("Good job player. welcome to Bullets 4", "white").then(() => {
+						
+					});
+				}
+			}break;
+		}
+	},
+	function(level) {
+		level.time += game.tick;
+		switch(level.phase) {
+			case(undefined):level.set(0);break;
+			case(-1):break;
+			case(0):{
+
 			}break;
 		}
 	}
