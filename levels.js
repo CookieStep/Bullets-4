@@ -1,177 +1,269 @@
-/**@type {((level: {time: number, phase: number, said: number, pause(): void, say(said: number): void, set(phase: number): void}) => {})[]}*/
-let levels = [
-	function(level) {
-		level.time += game.tick;
-		switch(level.phase) {
-			case(undefined):level.set(0);break;
-			case(-1):break;
-			case(0):{
-				if(level.time > 1000) {
-					dialogue("Wait...", "white", {continued: true});
-					dialogue("Wait... Where's our player?", "white").then(() => {
-						level.set(1);
-					});
-					level.pause();
-				}
-			}break;
-			case(1):{
-				if(keys.has("w") || keys.has("d") || keys.has("a") || keys.has("s")) level.move = true;
-				if(level.time > 1000 && level.said == 0) {
-					player = new Player
+function runLevel(number) {
+	if(!levels[number] && generateLevel[number]) levels[number] = generateLevel[number]();
+	if(levels[number]) levels[number].run();
+}
+/**@type {levelReadable[]}*/
+var levels = [];
+var generateLevel = [
+	() => new levelReadable(null,
+		new levelPhase(
+			(phase, level) => {
+				var touch;
+				touches.forEach(obj => {
+					if(!obj.end && Date.now() - obj.start > game.tick * 5) touch = true;
+				});
+				if((!phase.move) && player && player.alive && (
+					keys.has("w") || keys.has("d") || keys.has("a") || keys.has("s") || touch
+				)) phase.move = true;
+				if(phase.move && phase.part > 2) level.next();
+			},
+			new levelPart({
+				wait: 2500,
+				dialogue: [{
+					text: "Wait...",
+					color: "white",
+					continued: true
+				}, {
+					text: "Wait... Where's our player?",
+					color: "white",
+					onFinished(part, phase) {phase.setPart(1)}
+				}],
+				phasePause: true
+			}),
+			new levelPart({
+				wait: 1000,
+				script() {
+					player = new Player;
 					assign(player, {
 						x: 0, y: (innerHeight - player.size)/2,
 						velocity: {x: player.size * 2, y: 0}
 					});
-					level.say(1);
-				}
-				if(level.time > 3000 && level.said == 1) {
-					dialogue("Ah, there you are.", "white");
-					dialogue("Welcome Player, welcome.", "white").then(() => level.set(2));
-					level.pause();
-				}
-			}break;
-			case(2):{
-				if((keys.has("w") || keys.has("d") || keys.has("a") || keys.has("s")) || level.move) level.set(3);
-				if(level.time > 5000 && level.said == 0) {
-					dialogue("Um...", "white");
-					dialogue("You are aware of how to move...", "white", {continued: true});
-					dialogue("You are aware of how to move... Right Player?", "white").then(() => level.say(1));
-					level.say(-1);
-				}
-				if(level.time > 5000 && level.said == 1) {
-					dialogue("use W A S D", "white");
-					level.say(-1);
-				}
-			}break;
-			case(3):{
-				delete level.move;
-				if(level.time > 3000) {
-					dialogue("I hope you're ready Player.", "white");
-					dialogue("Bring on the PAIN!", "white").then(() => level.set(4));
-					level.pause();
-				}
-			}break;
-			case(4):{
-				if(level.time > 2000 && level.said == 0)
-					if(Enemy.summon(new Chill)) level.say(1);
-				if(level.time > 3000 && level.said == 1) {
-					dialogue("What?", "white");
-					dialogue("What is this???", "white").then(() => level.say(2));
-					level.say(-1);
-				}
-				if(level.time > 1000 && level.said == 2) {
-					dialogue("I...", "white", {continued: true});
-					dialogue("I... I don't understand.", "white");
-					dialogue("You'd try for that to kill you!", "white").then(() => level.say(3));
-					level.say(-1);
-				}
-				if(level.time > 3000 && level.said == 3) {
-					dialogue("Come on now. Give me something better!", "white").then(() => level.set(5));
-					level.pause();
-				}
+				},
+				nextPart: true
+			}),
+			new levelPart({
+				wait: 3000,
+				dialogue: [{
+					text: "Ah, there you are",
+					color: "white"
+				}, {
+					text: "Welcome player, welcome.",
+					color: "white",
+					onFinished(part, phase) {phase.setPart(3)}
+				}],
+				phasePause: true
+			}),
+			new levelPart({
+				wait: 5000,
+				dialogue: [{
+					text: "Um...",
+					color: "white"
+				}, {
+					text: "You are aware of how to move...",
+					color: "white",
+					continued: true
+				}, {
+					text: "You are aware of how to move... Right player?",
+					color: "white",
+					onFinished(part, phase) {phase.setPart(4)}
+				}],
+				phasePause: true
+			}),
+			new levelPart({
+				wait: 5000,
+				dialogue: [{
+					get text() {return touches.size? "Just press and hold.": "Use the W A S D keys"},
+					color: "white"
+				}],
+				phasePause: true
+			})
+		), new levelPhase(
+			(phase) => {
 				if(!player.alive) {
 					player = new Player().spawn();
-					enemies = [];
-					level.set(3);
+					if(hardcore) {
+						phase.setPart(1);
+						phase.resetSummons();
+					}
 				}
-			}break;
-			case(5):{
-				if(level.time > 2000 && level.said == 0)
-					if(Enemy.summon(new GoGo)) level.say(1);
-				if(level.time > 1000 && level.said == 1) {
-					level.say(-1);
-					dialogue("See, now this is more like it.", "white").then(() => level.say(2))
-				}
-				if(level.time > 3000 && level.said == 2) {
-					level.say(-1);
-					dialogue("Ok. I'm bored now")
-					dialogue("SEND MORE!!!").then(() => level.say(3));
-					level.sum = 0;
-				}
-				if(level.time > 3000 && level.said == 3) {
-					if(Enemy.summon(new GoGo)) level.sum++;
-					if(level.sum == 8) level.say(4);
-				}
-				if(level.time > 10000 && level.said == 4) {
-					level.say(-1); level.sum = 0;
-					dialogue("Hmm...", "white", {continued: true});
-					dialogue("Hmm... Well this is a bit unfair, isn't it?").then(() => level.say(5));
-				}
-				if(level.time > 5000 && level.said == 5) {
-					enemies = []; level.pause();
-					dialogue("Well, that simply won't do.", "white").then(() => level.set(6));
-				}
-				if(!player.alive) {
-					player = new Player().spawn();
-					enemies = [];
-					level.set(3);
-				}
-			}break;
-			case(6):{
-				if(level.time > 1000 && level.said == 0) {
-					level.say(-1);
-					dialogue("Here, let's get you a gun.", "white").then(() => {
-						level.say(1);
+			},
+			new levelPart({
+				wait: 250,
+				dialogue: [{
+					text: "I hope you're ready Player.",
+					color: "white"
+				}, {
+					text: "Bring on the PAIN!",
+					color: "white",
+					onFinished(part, phase) {phase.setPart(1)}
+				}],
+				phasePause: true
+			}),
+			new levelPart({
+				wait: 1000,
+				summons: [{enemy: Chill}],
+				nextPart: true
+			}),
+			new levelPart({
+				wait: 2000,
+				dialogue: [{
+					text: "What?",
+					color: "white"
+				}, {
+					text: "What is this???",
+					color: "white"
+				}],
+				nextPart: true
+			}),
+			new levelPart({
+				wait: 3000,
+				dialogue: [{
+					text: "Come on!",
+					color: "white",
+					continued: true
+				}, {
+					text: "Come on! Give me something better!",
+					color: "white",
+					onFinished(part, phase) {phase.setPart(4)}
+				}],
+				phasePause: true
+			}),
+			new levelPart({
+				wait: 2000,
+				summons: [{enemy: GoGo}],
+				nextPart: true
+			}),
+			new levelPart({
+				wait: 1000,
+				dialogue: [{
+					text: "See, now this is more like it.",
+					color: "white",
+					onFinished(part, phase) {phase.setPart(6)}
+				}],
+				phasePause: true
+			}),
+			new levelPart({
+				wait: 5000,
+				dialogue: [{
+					text: "Ok. I'm bored now...",
+					color: "white"
+				}, {
+					text: "SEND MORE!!!",
+					color: "white",
+					onFinished(part, phase) {phase.setPart(7)}
+				}],
+				phasePause: true
+			}),
+			new levelPart({
+				wait: 3000,
+				summons: [{enemy: GoGo, amount: 8}],
+				nextPart: true
+			}),
+			new levelPart({
+				wait: 10000,
+				dialogue: [{
+					text: "Hmm...",
+					color: "white",
+					continued: true
+				}, {
+					text: "Hmm... Well this is a bit unfair, isn't it?",
+					color: "white",
+					onFinished(part, phase) {phase.setPart(9)}
+				}],
+				phasePause: true
+			}),
+			new levelPart({
+				wait: 5000,
+				script() {enemies.clear()},
+				dialogue: [{
+					text: "Well that simply won't do.",
+					color: "white",
+					onFinished(part, phase) {phase.setPart(10)}
+				}],
+				phasePause: true
+			}),
+			new levelPart({
+				wait: 1000,
+				dialogue: [{
+					text: "Here kid, have a gun.",
+					color: "white",
+					onFinished(part, phase, level) {
 						player.skill = new Gun(player);
-					});
-				}
-				if(level.time > 3000 && level.said == 1) {
-					level.say(-1);
-					dialogue("Now,", "white", {continued: true});
-					dialogue("Now, back to the carnage.", "white").then(() => level.set(7));
-				}
-			}break;
-			case(7):{
-				if(level.time > 2000 && level.said == 0) {
-					if(Enemy.summon(new Chill)) level.sum++;
-					if(level.sum == 5) level.say(1);
-				}
-				if(level.said == 1) {
-					if(Enemy.summon(new GoGo)) level.sum++;
-					if(level.sum == 10) level.say(2);
-				}
+						level.next();
+					}
+				}],
+				phasePause: true
+			})
+		),
+		new levelPhase(
+			(phase) => {
 				if(!player.alive) {
 					player = new Player().spawn();
-					player.skill = Gun(player);
-					enemies = [];
-					level.set(6);
-					level.say(1);
+					player.skill = new Gun(player);
+					if(hardcore) {
+						phase.setPart(0);
+						phase.resetSummons();
+					}
 				}
-				if(!enemies.length) level.set(7);
-			}break;
-			case(8):{
-				if(this.time > 1000) {
-					dialogue("Good job player. welcome to Bullets 4", "white").then(() => {
+			},
+			new levelPart({
+				wait: 5000,
+				dialogue: [{
+					text: "Now,",
+					color: "white",
+					continued: true
+				}, {
+					text: "Now, back to the carnage.",
+					color: "white",
+					onFinished(level, phase) {phase.setPart(1)}
+				}],
+				phasePause: true
+			}),
+			new levelPart({
+				wait: 2000,
+				summons: [{enemy: Chill, amount: 5}, {enemy: GoGo, amount: 5}],
+				nextPart: true
+			}),
+			new levelPart({script(part, phase) {if(!enemies.length) phase.setPart(3)}}),
+			new levelPart({
+				wait: 100,
+				
+			})
+		)
+	)
+];
+// 			case(8):{
+// 				if(this.time > 1000) {
+// 					dialogue("Good job player. welcome to Bullets 4", "white").then(() => {
 						
-					});
-				}
-			}break;
-		}
-	},
-	function(level) {
-		level.time += game.tick;
-		switch(level.phase) {
-			case(undefined):level.set(0);break;
-			case(-1):break;
-			case(0):{
-
-			}break;
-		}
-	}
-]
-function runLevel(levelNumber) {
-	var level = levels[levelNumber];
-	if(!level.set) {
-		level.set = function(phase) {
-			level.time = 0;
-			level.said = 0;
-			level.phase = phase;
-		}
-		level.pause = function() {level.phase = -1}
-		level.say = function(said) {
-			level.time = 0;
-			level.said = said;
-		}
-	}
-	level(level);
-}
+// 					});
+// 				}
+// 			}break;
+// 		}
+// 	},
+// 	function(level) {
+// 		level.time += game.tick;
+// 		switch(level.phase) {
+// 			case(undefined):level.set(0);
+// 			case(-1):break;
+// 			case(0):{
+// 			}break;
+// 		}
+// 	}
+// ]
+// function runLevel(levelNumber) {
+// 	var level = levels[levelNumber];
+// 	if(!level.set) {
+// 		level.set = function(phase) {
+// 			level.time = 0;
+// 			level.said = 0;
+// 			level.phase = phase;
+// 		}
+// 		level.pause = function() {level.phase = -1}
+// 		level.say = function(said) {
+// 			level.time = 0;
+// 			level.said = said;
+// 		}
+// 	}
+// 	level(level);
+// }

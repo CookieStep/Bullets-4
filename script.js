@@ -1,48 +1,59 @@
 function update(e) {
 	if(Date.now() < update.last + (game.tick)) {update.run(); return;}
-	runLevel(game.level);
-	if(player && player.alive) player.update();
-	enemies = enemies.filter(enemy => enemy.alive);
-	bullets = bullets.filter(bullet => bullet.alive);
-	enemies.forEach(enemy => {
-		enemy.update();
-		if(player.alive && Entity.isTouching(player, enemy)) {
-			player.attack(enemy);
-			enemy.attack(player);
+	if(mainMenu.active) {
+		mainMenu();
+	}else if(catalog.active) {
+		catalog.run();
+	}else{
+		runLevel(game.level);
+		if(player && player.alive) player.update();
+		enemies.remove(enemy => !enemy.alive);
+		bullets.remove(bullet => !bullet.alive);
+		particles.remove(particle => !particle.alive);
+		enemies.forEach(enemy => {
+			enemy.update();
+			if(player.alive && Entity.isTouching(player, enemy)) {
+				player.attack(enemy);
+				enemy.attack(player);
+			}
+			bullets.forEach(bullet => {
+				if(Entity.isTouching(enemy, bullet)) {
+					bullet.attack(enemy);
+					enemy.attack(bullet);
+				}
+			})
+		});
+		bullets.forEach(bullet => {bullet.update()});
+		particles.forEach(particle => {particle.update()});
+		{let enemiesArray = enemies.asArray();
+			for(let a = 0; a < enemiesArray.length; a++) for(let b = a + 1; b < enemiesArray.length; b++) {
+				let enemy = enemiesArray[a], enemy2 = enemiesArray[b];
+				if(Entity.isTouching(enemy, enemy2)) {
+					let s = (enemy.size + enemy2.size)/2,
+						x = enemy.mx - enemy2.mx,
+						y = enemy.my - enemy2.my;
+					x /= 10;
+					y /= 10;
+					if(x < s) {
+						enemy.velocity.x = x;
+						enemy2.velocity.x = -x;
+					}
+					if(y < s) {
+						enemy.velocity.y = y;
+						enemy2.velocity.y = -y;
+					}
+				}
+			}
 		}
-		bullets.forEach(bullet => {
-			if(Entity.isTouching(enemy, bullet)) {
-				bullet.attack(enemy);
-				enemy.attack(bullet);
-			}
-		})
-	});
-	bullets.forEach(bullet => {bullet.update()});
-	for(let a = 0; a < enemies.length; a++) for(let b = a + 1; b < enemies.length; b++) {
-		let enemy = enemies[a], enemy2 = enemies[b];
-		if(Entity.isTouching(enemy, enemy2)) {
-			let s = (enemy.size + enemy2.size)/2,
-				x = enemy.mx - enemy2.mx,
-				y = enemy.my - enemy2.my;
-			x /= 10;
-			y /= 10;
-			if(x < s) {
-				enemy.velocity.x = x;
-				enemy2.velocity.x = -x;
-			}
-			if(y < s) {
-				enemy.velocity.y = y;
-				enemy2.velocity.y = -y;
-			}
-		}
+		if(dialogue.active) dialogue.update();
+		ctx.fillStyle = "#0005";
+		ctx.fillRect(0, 0, innerWidth, innerHeight);
+		particles.forEach(particle => {particle.draw()});
+		if(player && player.alive) player.draw();
+		enemies.forEach(enemy => enemy.draw());
+		bullets.forEach(bullet => {bullet.draw()});
+		if(dialogue.active) dialogue.draw();
 	}
-	if(dialogue.active) dialogue.update();
-	ctx.fillStyle = "#0005";
-	ctx.fillRect(0, 0, innerWidth, innerHeight);
-	if(player && player.alive) player.draw();
-	enemies.forEach(enemy => enemy.draw());
-	bullets.forEach(bullet => {bullet.draw()});
-	if(dialogue.active) dialogue.draw();
 	update.last = Date.now();
 	update.run();
 }
@@ -56,9 +67,35 @@ onkeyup = (e) =>
 onload = () => {
 	onresize();
 	document.body.appendChild(canvas);
+	//mainMenu.setup();
 	update();
 }
-onresize = () => assign(canvas, {
-	width: innerWidth,
-	height: innerHeight
-});
+onresize = () => {
+	assign(canvas, {
+		width: innerWidth,
+		height: innerHeight
+	});
+	assign(game, {
+		x: 0,
+		y: 0,
+		x2: innerWidth,
+		y2: innerHeight,
+		scale: sqrt((innerWidth * innerHeight * 1600)/921600)
+	});
+	if(mainMenu.active) mainMenu.screen();
+	else if(catalog.active) catalog.screen();
+}
+// var keyBind = {
+//     back: 8,
+//     down: 83,
+//     down2: 40,
+//     enter: 13,
+//     glide: 16,
+//     left: 65,
+//     left2: 37,
+//     right: 68,
+//     right2: 39,
+//     select: 32,
+//     up: 87,
+//     up2: 38
+// }

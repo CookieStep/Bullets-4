@@ -3,7 +3,8 @@ var canvas = document.createElement("canvas"),
 var {
 	cos, sin, PI, atan2,
 	ceil, floor, round,
-	sqrt, pow, abs
+	sqrt, pow, abs,
+	max, min
 } = Math, {
 	assign
 } = Object;
@@ -16,18 +17,28 @@ var random = (max=1, min=0) =>
 */
 var radian = (x, y=undefined) => typeof x == "number"? atan2(y, x): atan2(x.y, x.x);
 var point = (radian, distance=1) => ({x: cos(radian) * distance, y: sin(radian) * distance});
+var constrain = (value, max=1, min=0) => round((value - min)/(max - min)) * (max - min) + min;
 /**@type {Player}*/
 var player;
-/**@type {Bullet[]}*/
-var bullets = [];
-/**@type {Enemy[]}*/
-var enemies = [];
-var enemies2 = [];
+/**@type {Collection<Bullets>}*/
+var bullets = new Collection;
+/**@type {Collection<Enemy>}*/
+var enemies = new Collection;
+/**@type {Collection<Enemy>}*/
+var enemies2 = new Collection;
+/**@type {Collection<Particle>}*/
+var particles = new Collection;
+var hardcore;
+//921600 => 40
 var game = {
 	scale: 40,
 	level: 0,
 	fps: 50,
 	lives: 3,
+	x: 0,
+	y: 0,
+	x2: innerWidth,
+	y2: innerHeight,
 	get tick() {
 		return 1000/this.fps;
 	}

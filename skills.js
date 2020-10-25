@@ -12,6 +12,7 @@ class Gun extends Skill{
 	/**Arrow Keys
 	 * @param {number} x @param {number} y*/
 	directional(x, y) {
+		({x, y} = point(radian(x, y)));
 		if(this.lastShot) return;
 		this.lastShot = 10;
 		var bullet = new Bullet(this.user, radian(x, y)).spawn();

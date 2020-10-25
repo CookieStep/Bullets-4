@@ -15,20 +15,6 @@ function dialogue(text, color="white", options={}) {
         }
     }
 }
-// var keyBind = {
-//     back: 8,
-//     down: 83,
-//     down2: 40,
-//     enter: 13,
-//     glide: 16,
-//     left: 65,
-//     left2: 37,
-//     right: 68,
-//     right2: 39,
-//     select: 32,
-//     up: 87,
-//     up2: 38
-// }
 /**@type {{text: string, color: string, continued: boolean, onFinished(): void}[]}*/
 dialogue.lines = [];
 dialogue.text = "";
@@ -45,7 +31,14 @@ dialogue.draw = () => {
     ctx.fillText(dialogue.text, 0, innerHeight - s/5);
 }
 dialogue.update = () => {
-    if(keys.get(" ") == 1) {
+	var touch;
+	touches.forEach(obj => {
+		if(!obj.end && !obj.used) {
+			touch = true;
+			obj.used = true;
+		}
+	});
+    if(touch || keys.get(" ") == 1) {
         keys.set(" ", 2);
         var line = dialogue.lines.shift();
         if(line.text.length > dialogue.text.length) {

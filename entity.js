@@ -1,20 +1,21 @@
 class Entity{
 	/**@param {Entity} parent*/
-	constructor(parent) {
-		this.parent = parent;
-	}
+	constructor(parent) {this.parent = parent}
+	/**The class this one "evolves from" or extends*/
+	ancestor;
+	name = "Entity";
+	description = ["This is like,", "where you should write a description."];
 	velocity = {x: 0, y: 0};
 	friction = 0.9;
 	x = 0; y = 0;
+	id = -1n;
 	color = "white";
 	shape = "square";
-	get size() {
-		return game.scale * this.scale;
-	}
+	get size() {return game.scale * this.scale}
 	scale = 1;
 	spd = 0.01;
-	/**Bounce off walls?*/
-	wallBounce = true;
+	/**when hit wall?*/
+	onWall = BOUNCE;
 	/**The actual Hp value*/
 	hp = 1;
 	/**Max hp this can have*/
@@ -34,37 +35,57 @@ class Entity{
 	}
 	/**Move to spawn*/
 	pickLocation() {
-		this.x = random(innerWidth - this.size);
-		this.y = random(innerHeight - this.size);
+		var {
+			x=0,
+			y=0,
+			x2=innerWidth,
+			y2=innerHeight
+		} = game;
+		this.x = random(x2 - this.size, x);
+		this.y = random(y2 - this.size, y);
 	}
 	spawn() {
 		this.pickLocation();
 		return this;
 	}
+	static wall(num, ver, d) {
+		switch(ver) {
+			case(BOUNCE): return d * abs(num);
+			case(NULL): return 0;
+			default: return num;
+		}
+	}
+	/**@param {{x?: number, y?: number, x2?: number, y2?: number}} options*/
 	screenlock() {
-		var x = false, y = false;
-		var {wallBounce} = this
-		if(this.x < 0) {
-			x = true;
-			this.x = 0;
-			if(wallBounce) this.velocity.x = abs(this.velocity.x);
+		var {
+			x=0,
+			y=0,
+			x2=innerWidth,
+			y2=innerHeight
+		} = game;
+		var wallX = false, wallY = false;
+		var {onWall, velocity} = this;
+		if(this.x < x) {
+			wallX = true;
+			this.x = x;
+			velocity.x = Entity.wall(velocity.x, onWall, 1);
 		}
-		if(this.y < 0) {
-			y = true;
-			this.y = 0;
-			if(wallBounce) this.velocity.y = abs(this.velocity.y);
+		if(this.y < y) {
+			wallY = true;
+			this.y = y;
+			velocity.y = Entity.wall(velocity.y, onWall, 1);
 		}
-		if(this.x + this.size > innerWidth) {
-			x = true;
-			this.x = innerWidth - this.size;
-			if(wallBounce) this.velocity.x = -abs(this.velocity.x);
+		if(this.x + this.size > x2) {
+			wallX = true;
+			this.x = x2 - this.size;
+			velocity.x = Entity.wall(velocity.x, onWall, -1);
 		}
-		if(this.y + this.size > innerHeight) {
-			y = true;
-			this.y = innerHeight - this.size;
-			if(wallBounce) this.velocity.y = -abs(this.velocity.y);
+		if(this.y + this.size > y2) {
+			wallY = true;
+			this.y = y2 - this.size;
+			velocity.y = Entity.wall(velocity.y, onWall, -1);
 		}
-		if(x || y) this.hitWall(x, y);
+		if(wallX || wallY) this.hitWall(wallX, wallY);
 	}
 	tick() {}
 	/**@param {boolean} x Hit the x wall? @param {boolean} y Hit the y wall?*/
@@ -75,6 +96,14 @@ class Entity{
 		this.velocity.x *= sqrt(this.friction);
 		this.velocity.y *= sqrt(this.friction);
 	}
+	moveTo(x, y) {
+		if(typeof x == "number");
+		else if(x.mx) ;
+		else if(x.x) {
+			this.move(radian({x: x.x - this.mx, y: x.y - this.my}));
+		}
+	}
+	prepare() {}
 	draw() {
 		var {
 			x, y,
@@ -84,13 +113,15 @@ class Entity{
 			rotation,
 			fillAlpha,
 			strokeAlpha,
+			undoStrokeScale,
 			shape2,
 			color2,
 			rotation2,
 			fillAlpha2,
 			strokeAlpha2,
+			undoStrokeScale2
 		} = this;
-		drawShape({shape, x, y, size, color, rotation, strokeAlpha, fillAlpha});
+		drawShape({shape, x, y, size, color, rotation, strokeAlpha, fillAlpha, undoStrokeScale});
 		if(shape2) {
 			var test = (what, type, fallback) => typeof what == type? what: fallback;
 			drawShape({
@@ -99,13 +130,22 @@ class Entity{
 				color: test(color2, "string", color),
 				rotation: test(rotation2, "number", rotation),
 				fillAlpha: test(fillAlpha2, "number", fillAlpha),
-				strokeAlpha: test(strokeAlpha2, "number", strokeAlpha)
+				strokeAlpha: test(strokeAlpha2, "number", strokeAlpha),
+				undoStrokeScale: undoStrokeScale2
 			});
 		}
 	}
-	move(radian) {
+	/**@param {number} radian @param {Entity[]} tests*/
+	move(radian, ...tests) {
 		this.velocity.x += cos(radian) * this.spd * this.size;
 		this.velocity.y += sin(radian) * this.spd * this.size;
+		if(tests.length) {
+			var a = false;
+			tests.forEach(test => {
+				if(Entity.isTouching(this, test)) a = true;
+			});
+			return a;
+		}
 	}
 	/**Rotation of shape*/
 	get rotation() {return 0}
@@ -136,5 +176,9 @@ class Entity{
 		abs(a.mx - b.mx) < (a.size + b.size)/2 && abs(a.my - b.my) < (a.size + b.size)/2;
 	/**Radian from a to b
 	 * @param {Entity} a @param {Entity} b*/
-	static radianTo = (a, b) => radian(a.x - b.x, a.y - b.y);
+	static radianTo = (a, b) => radian(b.x - a.x, b.y - a.y);
 }
+const
+	BOUNCE = Symbol("Bounce"),
+	NULL = Symbol("Null"),
+	NOTHING = Symbol("Nothing");

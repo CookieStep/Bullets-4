@@ -4,27 +4,39 @@ class Enemy extends Entity{
 		do{
 			this.pickLocation();
 			++tries;
-			good = Entity.distance(player, this) > game.scale * 5;
+			good = !(player && player.alive) || Entity.distance(player, this) > game.scale * 5;
 		}while(good && tries < 10);
 		return good? this: good;
 	}
-	/**@param {Enemy} what*/
-	static summon(what) {
-		what = what.spawn();
-		if(what) return enemies.push(what);
-		else return what;
+	/**@param {Enemy} enemy*/
+	static summon(enemy) {
+		enemy = enemy.spawn();
+		if(enemy) {
+			var id = enemies.push(enemy);
+			enemy.id = id;
+		}
+		return enemy;
+	}
+	/**@param {Enemy[]} enemies*/
+	static summonBulk(...enemies) {
+		enemies.forEach(enemy => {Enemy.summon(enemy)})
 	}
 }
 class Chill extends Enemy{
+	name = "Chill";
+	description = ["Does nothing.", `"He's pretty chill"`];
 	color = "#fa5";
 	shape = "square2";
 }
 class GoGo extends Enemy{
+	name = "Go-go";
+	description = ["Litterally just moves.", `"Doesn't care where it's going`, `As long as it's going somewhere!"`]
 	tick() {
 		var {x, y} = this.velocity;
 		if(x || y) this.move(this.rotation);
 		else this.move(random(PI * 2));
 	}
+	prepare() {this.velocity = {y: -1, x: 0}}
 	get rotation() {return radian(this.velocity)}
 	color = "#faa";
 	shape = "square2";
@@ -32,6 +44,9 @@ class GoGo extends Enemy{
 	shape2 = "arrow";
 }
 class Underbox extends GoGo{
+	name = "Underbox";
+	ancestor = "Go-go";
+	description = ["Picks a direction", "Does not sway from it's decision.", `"Filled with DETERMINATION"`];
 	tick() {
 		if(this.target) this.move(this.rotation2);
 		else{
@@ -42,6 +57,7 @@ class Underbox extends GoGo{
 			}
 		}
 	}
+	prepare() {this.target = {y: -1, x: 0}}
 	/**@param {boolean} x Hit the x wall? @param {boolean} y Hit the y wall?*/
 	hitWall(x, y) {
 		var {target} = this;
@@ -52,36 +68,61 @@ class Underbox extends GoGo{
 	shape = "square";
 	color2 = "#0c0";
 	shape2 = "arrow2";
-	get rotation2() {
-		return radian(this.target);
-	}
+	get rotation2() {return radian(this.target)}
 }
 class Corner extends Enemy{
+	name = "Edge lord";
+	description = ["Goes from corner to corner", `"Is always on edge."`];
 	pickLocation() {
-		var a = round(random());
-		this.a = a;
-		this.d = round(random())? -1: 1; 
+		var {
+			x: gx=0,
+			y: gy=0,
+			x2=innerWidth,
+			y2=innerHeight
+		} = game;
 		super.pickLocation();
-		var w = innerWidth - this.size;
-		var h = innerHeight - this.size;
-		if(a) this.x = round(this.x/w) * w;
-		else this.y = round(this.y/h) * h;
+		var a = round(random());
+		if(a) this.x = constrain(this.x, x2, gx);
+		else this.y = constrain(this.y, y2, gy);
+		this.a = a;
+		this.pickDir();
 	}
-	wallBounce = false;
 	tick() {
-		if(!("n" in this)) this.n = this.a;
-		this.move(PI * this.n/2);
+		var {
+			x: gx=0,
+			y: gy=0,
+			x2=innerWidth,
+			y2=innerHeight
+		} = game;
+		var {a, velocity} = this;
+		this.move(radian(this.velocity));
+		if(a) this.x = constrain(this.x, x2, gx);
+		else this.y = constrain(this.y, y2, gy);
+		if(a) velocity.x = 0;
+		else velocity.y = 0;
+		if(this.last) --this.last;
 	}
+	pickDir() {
+		var {
+			x: gx=0,
+			y: gy=0,
+			x2=innerWidth,
+			y2=innerHeight
+		} = game;
+		var x = constrain(this.x, x2, gx) - gx,
+			y = constrain(this.y, y2, gy) - gy;
+		this.velocity = {y: y? -1: 1, x: x? -1: 1};
+		this.last = 10;
+	}
+	/**@param {boolean} x Hit the x wall? @param {boolean} y Hit the y wall?*/
 	hitWall(x, y) {
-		var w = innerWidth - this.size;
-		var h = innerHeight - this.size;
-		this.velocity = {x: 0, y: 0};
-		this.x = round(this.x/w) * w;
-		this.y = round(this.y/h) * h;
-		this.n = (this.n + 3 * this.d) % 4;
-		this.wa = true;
+		var {a} = this;
+		if((a && y) || (!a && x)) {
+			this.a = !a;
+			this.pickDir();
+		}
 	}
 	color = "#ffa";
-	color2 = "#fe0";
+	color2 = "#ec0";
 	shape2 = "4square";
 }
