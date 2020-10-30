@@ -1,7 +1,7 @@
 class Player extends Entity{
 	tick() {
 		this.keys();
-		this.touchv1();
+		this.touchv2();
 	}
 	// die() {
 	//	if(!hardcore) {
