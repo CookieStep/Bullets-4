@@ -3,7 +3,7 @@ class Exp extends Entity{
 		super(parent);
 		this.rad = rad;
 	}
-	spd = 0.05;
+	spd = 0.075;
 	tick() {
 		if(player && player.alive) {
 			if(Entity.distance(this, player) < 5 * game.scale) {

@@ -30,17 +30,17 @@ class Gun extends Skill{
 	draw() {
 		var {user} = this;
 		var m = user.size * 1.5;
-		var s = user.size/2;
+		var s = user.size/3;
 		var a = floor(this.sk/this.rsk);
 		var ri = PI * 2 / a;
 		var x = user.mx - s/2;
 		var y = user.my - s/2;
 		for(let i = 0; i < a; i++) {
-			var rad = ri * i + tick/(a * 3);
+			var rad = ri * i + tick/(a * 2 + 3);
 			drawShape({
 				x: x + cos(rad) * m, y: y + sin(rad) * m,
 				size: s, color: "white", shape: "square3",
-				fillAlpha: 0
+				fillAlpha: 0, rotation: rad
 			});
 		}
 	}

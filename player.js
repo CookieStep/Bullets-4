@@ -14,12 +14,8 @@ class Player extends Entity{
 		this.x = (innerWidth - this.size)/2;
 		this.y = (innerHeight - this.size)/2;
 		enemies.forEach(enemy => {
-			if(Entity.distance(this, enemy) < 15 * game.scale) {
+			if(Entity.distance(this, enemy) < 10 * game.scale) {
 				var radian = Entity.radianTo(this, enemy);
-				if(Entity.distance(this, enemy) < 5 * game.scale) {
-					enemy.x = this.x + cos(radian) * 5 * game.scale;
-					enemy.y = this.y + sin(radian) * 5 * game.scale;
-				}
 				enemy.velocity.x += cos(radian) * enemy.size;
 				enemy.velocity.y += sin(radian) * enemy.size;
 			}
