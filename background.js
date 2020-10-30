@@ -23,7 +23,7 @@ bckdrpGen.set("tutorial", (width, height) => createBackground(path => {
         path.moveTo(x, 0);
         path.lineTo(x, h);
     }
-    for(let y = 0; y <= w; y++) {
+    for(let y = 0; y <= h; y++) {
         path.moveTo(0, y);
         path.lineTo(w, y);
     }
