@@ -24,7 +24,7 @@ dialogue.draw = () => {
 		dialogue.active = false;
 	return}
 	if(line.text.length > dialogue.text.length) {
-		if(tick % 2 == 0) dialogue.text = `${dialogue.text}${line.text[dialogue.text.length]}`;
+		dialogue.text = `${dialogue.text}${line.text[dialogue.text.length]}`;
 	}else ++dialogue.idle;
 	let s = game.scale;
 	ctx.font = `${s}px Arial`;

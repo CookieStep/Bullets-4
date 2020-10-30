@@ -71,18 +71,28 @@ function update(e) {
 			h = ceil(innerHeight/game.scale) * game.scale
 		var back = backgrounds.get(backgroundName);
 		if(back) {
-			back.update();
-			ctx.save();
-			ctx.beginPath();
-			let path = new Path2D;
-			path.addPath(back, Matrix(back.scale, back.scale, (innerWidth - w)/2, (innerHeight - h)/2));
-			bctx.strokeStyle = back.stroke;
-			bctx.fillStyle = back.fill;
-			bctx.fill(path);
-			bctx.stroke(path);
+			bctx.drawImage(back, 0, 0)
 		}else{
 			var backGen = bckdrpGen.get(backgroundName);
-			if(backGen) backgrounds.set(backgroundName, backGen(w, h));
+			if(backGen) {
+				let back = backGen(w, h);
+				let canvas = document.createElement("canvas"),
+				ctx = canvas.getContext("2d");
+				assign(canvas, {
+					width: innerWidth,
+					height: innerHeight
+				});
+				//back.update();
+				ctx.save();
+				ctx.beginPath();
+				let path = new Path2D;
+				path.addPath(back, Matrix(back.scale, back.scale, (innerWidth - w)/2, (innerHeight - h)/2));
+				ctx.strokeStyle = back.stroke;
+				ctx.fillStyle = back.fill;
+				ctx.fill(path);
+				ctx.stroke(path);
+				backgrounds.set(backgroundName, canvas);
+			}
 		}
 		particles.forEach(particle => {particle.draw()});
 		if(player && player.alive) player.draw();
