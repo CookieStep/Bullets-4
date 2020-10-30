@@ -120,7 +120,7 @@ class levelPart{
 				if(onFinished) a.then(() => onFinished(part, phase, level));
 			});
 			if(Music.has(this.startBgm)) Music.get(this.startBgm).play();
-			if(Music.has(this.stopBgm)) Music.get(this.stopBgm).stop();
+			if(Music.has(this.endBgm)) Music.get(this.endBgm).stop();
 			if(typeof this.script == "function")
 				this.script(this, phase, level);
 			if(canEnd) {
