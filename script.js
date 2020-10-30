@@ -8,16 +8,24 @@ function update(e) {
 		runLevel(game.level);
 		if(player && player.alive) player.update();
 		enemies.remove(enemy => !enemy.alive);
+		exp.remove(xp => !xp.alive);
 		bullets.remove(bullet => !bullet.alive);
 		particles.remove(particle => !particle.alive);
+		exp.forEach(xp => {
+			xp.update();
+			if(player && player.alive && Entity.isTouching(player, xp)) {
+				if(player.skill) ++player.skill.sk;
+				xp.attack(player);
+			}
+		});
 		enemies.forEach(enemy => {
 			enemy.update();
-			if(player.alive && Entity.isTouching(player, enemy)) {
+			if(player && player.alive && Entity.isTouching(player, enemy)) {
 				player.attack(enemy);
 				enemy.attack(player);
 			}
 			bullets.forEach(bullet => {
-				if(Entity.isTouching(enemy, bullet)) {
+				if(enemy.alive && Entity.isTouching(enemy, bullet)) {
 					bullet.attack(enemy);
 					enemy.attack(bullet);
 				}
@@ -46,14 +54,46 @@ function update(e) {
 			}
 		}
 		if(dialogue.active) dialogue.update();
-		ctx.fillStyle = "#0005";
+		ctx.globalCompositeOperation = "destination-out";
+		ctx.fillStyle = "#fff5";
+		bctx.fillStyle = backgroundColor;
 		ctx.fillRect(0, 0, innerWidth, innerHeight);
+		bctx.fillRect(0, 0, innerWidth, innerHeight);
+		ctx.globalCompositeOperation = "source-over";
+		if(++tick % 25 == 0) {
+			let imageData = ctx.getImageData(0, 0, innerHeight, innerWidth);
+			let {data} = imageData;
+			for(let i = 3; i < data.length; i += 3)
+				data[i] = floor(data[i]/15) * 15;
+			ctx.putImageData(imageData, 0, 0)
+		}
+		var w = ceil(innerWidth/game.scale) * game.scale,
+			h = ceil(innerHeight/game.scale) * game.scale
+		var back = backgrounds.get(backgroundName);
+		if(back) {
+			back.update();
+			ctx.save();
+			ctx.beginPath();
+			let path = new Path2D;
+			path.addPath(back, Matrix(back.scale, back.scale, (innerWidth - w)/2, (innerHeight - h)/2));
+			bctx.strokeStyle = back.stroke;
+			bctx.fillStyle = back.fill;
+			bctx.fill(path);
+			bctx.stroke(path);
+		}else{
+			var backGen = bckdrpGen.get(backgroundName);
+			if(backGen) backgrounds.set(backgroundName, backGen(w, h));
+		}
 		particles.forEach(particle => {particle.draw()});
 		if(player && player.alive) player.draw();
 		enemies.forEach(enemy => enemy.draw());
 		bullets.forEach(bullet => {bullet.draw()});
+		exp.forEach(xp => {xp.draw()});
 		if(dialogue.active) dialogue.draw();
 	}
+	pen.clearRect(0, 0, innerWidth, innerHeight);
+	pen.drawImage(background, 0, 0);
+	pen.drawImage(foreground, 0, 0);
 	update.last = Date.now();
 	update.run();
 }
@@ -68,10 +108,22 @@ onload = () => {
 	onresize();
 	document.body.appendChild(canvas);
 	//mainMenu.setup();
+	player = new Player().spawn();
+	player.skill = new Gun(player);
+	runLevel(game.level);
+	levels[0].phase = 2;
 	update();
 }
 onresize = () => {
 	assign(canvas, {
+		width: innerWidth,
+		height: innerHeight
+	});
+	assign(background, {
+		width: innerWidth,
+		height: innerHeight
+	});
+	assign(foreground, {
 		width: innerWidth,
 		height: innerHeight
 	});
@@ -82,6 +134,7 @@ onresize = () => {
 		y2: innerHeight,
 		scale: sqrt((innerWidth * innerHeight * 1600)/921600)
 	});
+	backgrounds.clear();
 	if(mainMenu.active) mainMenu.screen();
 	else if(catalog.active) catalog.screen();
 }

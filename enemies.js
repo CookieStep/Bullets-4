@@ -8,6 +8,9 @@ class Enemy extends Entity{
 		}while(good && tries < 10);
 		return good? this: good;
 	}
+	die() {
+		Exp.summon(this);
+	}
 	/**@param {Enemy} enemy*/
 	static summon(enemy) {
 		enemy = enemy.spawn();

@@ -11,7 +11,7 @@ class Bullet extends Entity{
 		var {parent} = this;
 		this.mx = parent.mx;
 		this.my = parent.my;
-		this.velocity = point(this.rad, this.spd * this.size * 5);
+		this.velocity = point(this.rad, this.spd * this.size * 10);
 	}
 	get fillAlpha() {
 		return this.parent.fillAlpha;

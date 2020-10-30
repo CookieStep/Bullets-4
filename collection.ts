@@ -14,5 +14,6 @@ interface Collection<A>{
     set(id: bigint, value: A): Collection<A>
     has(id: bigint): boolean
     asArray(): A[]
+    size: number
 }
 declare class Collection<A>{constructor(...items: A[])}

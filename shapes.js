@@ -1,10 +1,10 @@
+class Shape extends Path2D{
+	/**Radian to rotate the shape by*/
+	rotation = 0;
+	/**Scale factor for the shape*/
+	scale = 1;
+}
 {
-	let Shape = class extends Path2D{
-		/**Radian to rotate the shape by*/
-		rotation = 0;
-		/**Scale factor for the shape*/
-		scale = 1;
-	}
 	/**@param {(ctx: Shape) => void script*/
 	var createShape = (script) => {
 		var ctx = new Shape;
@@ -218,4 +218,23 @@
 			return true;
 		}else return false;
 	}
+}
+function Matrix(scaleX=1, scaleY=1, moveX=0, moveY=0, skewX=0, skewY=0) {
+	var matrix = new DOMMatrix;
+	[
+		matrix.a,
+		matrix.d,
+		matrix.e,
+		matrix.f,
+		matrix.b,
+		matrix.c
+	] = [
+		scaleX,
+		scaleY,
+		moveX,
+		moveY,
+		skewX,
+		skewY
+	];
+	return matrix;
 }

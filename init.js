@@ -1,5 +1,9 @@
 var canvas = document.createElement("canvas"),
-	ctx = canvas.getContext("2d", {alpha: false});
+	pen = canvas.getContext("2d", {alpha: false}),
+	background = document.createElement("canvas"),
+	bctx = background.getContext("2d"),
+	foreground = document.createElement("canvas"),
+	ctx = foreground.getContext("2d");
 var {
 	cos, sin, PI, atan2,
 	ceil, floor, round,
@@ -26,6 +30,8 @@ var bullets = new Collection;
 var enemies = new Collection;
 /**@type {Collection<Enemy>}*/
 var enemies2 = new Collection;
+/**@type {Collection<Exp>}*/
+var exp = new Collection;
 /**@type {Collection<Particle>}*/
 var particles = new Collection;
 var hardcore;
@@ -43,3 +49,7 @@ var game = {
 		return 1000/this.fps;
 	}
 }
+var tick = 0;
+/**@type {string}*/
+var backgroundName = "tutorial",
+	backgroundColor = "#000";

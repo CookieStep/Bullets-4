@@ -25,7 +25,9 @@ class Entity{
 	/**@param {Entity} attacker*/
 	attack(attacker) {
 		this.hp -= attacker.atk;
+		if(!this.alive) this.die();
 	}
+	die() {}
 	get alive() {return this.hp > 0}
 	update() {
 		if(this.skill) this.skill.update();
@@ -97,11 +99,9 @@ class Entity{
 		this.velocity.y *= sqrt(this.friction);
 	}
 	moveTo(x, y) {
-		if(typeof x == "number");
-		else if(x.mx) ;
-		else if(x.x) {
-			this.move(radian({x: x.x - this.mx, y: x.y - this.my}));
-		}
+		if(typeof x == "number") this.move(radian(x - this.mx, y - this.my));
+		else if("mx" in x) this.move(radian(x.mx - this.mx, x.my - this.my));
+		else if("x" in x) this.move(radian(x.x - this.mx, x.y - this.my));
 	}
 	prepare() {}
 	draw() {
@@ -134,6 +134,7 @@ class Entity{
 				undoStrokeScale: undoStrokeScale2
 			});
 		}
+		if(this.skill) this.skill.draw();
 	}
 	/**@param {number} radian @param {Entity[]} tests*/
 	move(radian, ...tests) {

@@ -1,8 +1,14 @@
 class Player extends Entity{
 	tick() {
 		this.keys();
-		this.touchv2();
+		this.touchv1();
 	}
+	// die() {
+	//	if(!hardcore) {
+	//		this.spawn();
+	//		this.hp = this.maxHp;
+	//	}
+	// }
 	/**Moves the player to the middle of the screen*/
 	pickLocation() {
 		this.x = (innerWidth - this.size)/2;

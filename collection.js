@@ -64,4 +64,5 @@ class Collection{
 	get(id) {return this.map.get(id)}
 	has(id) {return this.map.has(id)}
 	set(id, value) {this.map.set(id, value); return this}
+	get size() {return this.map.size}
 }
