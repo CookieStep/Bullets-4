@@ -108,10 +108,6 @@ onload = () => {
 	onresize();
 	document.body.appendChild(canvas);
 	//mainMenu.setup();
-	player = new Player().spawn();
-	player.skill = new Gun(player);
-	runLevel(game.level);
-	levels[0].phase = 2;
 	update();
 }
 onresize = () => {

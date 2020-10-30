@@ -258,6 +258,7 @@ var generateLevel = [
 			(phase) => {
 				if(!player.alive) {
 					player = new Player().spawn();
+					player.skill = new Gun(player);
 					if(hardcore)
 						phase.reset()
 				}
