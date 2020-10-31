@@ -35,11 +35,11 @@ class Entity{
 	 * @type {string}*/
 	deathSFX;
 	get alive() {return this.hp > 0}
-	update() {
+	update(focus) {
 		if(this.skill) this.skill.update();
 		this.tick();
 		this.forces();
-		this.screenlock();
+		this.screenlock(focus);
 	}
 	/**Move to spawn*/
 	pickLocation() {
@@ -63,8 +63,8 @@ class Entity{
 			default: return num;
 		}
 	}
-	/**@param {{x?: number, y?: number, x2?: number, y2?: number}} options*/
-	screenlock() {
+	/**@param {boolean} focus Is this screen important? (used for audio, mainly)*/
+	screenlock(focus) {
 		var {
 			x=0,
 			y=0,
@@ -94,7 +94,7 @@ class Entity{
 			velocity.y = Entity.wall(velocity.y, onWall, -1);
 		}
 		if(wallX || wallY) {
-			if(this.wallSFX) SFX.get("Wall").play();
+			if(this.wallSFX && focus) SFX.get("Wall").play();
 			this.hitWall(wallX, wallY);
 		}
 	}

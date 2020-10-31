@@ -66,6 +66,8 @@ class levelPart{
 	 * 	mainMenu?: true
 	 * 	startBgm?: string
 	 * 	endBgm?: string
+	 * 	setBackground?: string,
+	 * 	saveData: {}
 	}} options*/
 	constructor(options) {
 		var {
@@ -80,7 +82,9 @@ class levelPart{
 			nextPhase,
 			startBgm,
 			mainMenu,
-			endBgm
+			endBgm,
+			setBackground,
+			saveData
 		} = options;
 		this.wait = wait;
 		this.dialogue = dialogue;
@@ -94,6 +98,8 @@ class levelPart{
 		this.mainMenu = mainMenu;
 		this.startBgm = startBgm;
 		this.endBgm = endBgm;
+		this.saveData = saveData;
+		this.setBackground = setBackground;
 		this.time = 0;
 	}
 	resetSummons() {
@@ -121,9 +127,17 @@ class levelPart{
 			});
 			if(Music.has(this.startBgm)) Music.get(this.startBgm).play();
 			if(Music.has(this.endBgm)) Music.get(this.endBgm).stop();
+			if(this.setBackground) backgroundName = this.setBackground;
 			if(typeof this.script == "function")
 				this.script(this, phase, level);
 			if(canEnd) {
+				if(this.saveData) {
+					let keys = Object.keys(this.saveData);
+					for(let key of keys) {
+						let val = this.saveData[key];
+						data[key] = val;
+					}
+				}
 				if(this.nextPart) phase.next();
 				if(this.nextPhase) level.next();
 				if(this.partPause) this.time = -1;

@@ -39,7 +39,7 @@ var hardcore;
 var game = {
 	scale: 40,
 	level: 0,
-	fps: 50,
+	fps: 40,
 	lives: 3,
 	x: 0,
 	y: 0,

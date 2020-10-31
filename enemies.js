@@ -1,17 +1,18 @@
 class Enemy extends Entity{
-	spawn() {
+	spawn(sound=true) {
 		var tries = 0, good;
 		do{
 			this.pickLocation();
 			++tries;
 			good = !(player && player.alive) || Entity.distance(player, this) > game.scale * 5;
 		}while(good && tries < 10);
-		if(good) SFX.get("Spawn").play();
+		if(good && sound) SFX.get("Spawn").play();
 		return good? this: good;
 	}
 	die() {
 		super.die();
 		Exp.summon(this);
+		data.catalog.add(this.name);
 	}
 	deathSFX = "Hit";
 	/**@param {Enemy} enemy*/
@@ -21,8 +22,12 @@ class Enemy extends Entity{
 		return enemy;
 	}
 	/**@param {Enemy[]} enemies*/
-	static summonBulk(...enemies) {
-		enemies.forEach(enemy => {Enemy.summon(enemy)})
+	static summonBulk(...enemyArray) {
+		enemyArray.forEach(enemy => {
+			enemy = enemy.spawn(false);
+			if(enemy) enemies.push(enemy);
+			return enemy;
+		});
 	}
 }
 class Chill extends Enemy{

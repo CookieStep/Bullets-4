@@ -1,32 +1,5 @@
 function mainMenu() {
-	/*Background*/{
-		enemies.forEach(enemy => {
-			enemy.update();
-		});
-		{let enemiesArray = enemies.asArray();
-			for(let a = 0; a < enemiesArray.length; a++) for(let b = a + 1; b < enemiesArray.length; b++) {
-				let enemy = enemiesArray[a], enemy2 = enemiesArray[b];
-				if(Entity.isTouching(enemy, enemy2)) {
-					let s = (enemy.size + enemy2.size)/2,
-						x = enemy.mx - enemy2.mx,
-						y = enemy.my - enemy2.my;
-					x /= 10;
-					y /= 10;
-					if(x < s) {
-						enemy.velocity.x = x;
-						enemy2.velocity.x = -x;
-					}
-					if(y < s) {
-						enemy.velocity.y = y;
-						enemy2.velocity.y = -y;
-					}
-				}
-			}
-		}
-		ctx.fillStyle = "#0005";
-		ctx.fillRect(game.x, 0, game.x2, game.y2);
-		enemies.forEach(enemy => enemy.draw());
-	}
+	main(false);
 	ctx.fillStyle = "#000";
 	ctx.fillRect(0, 0, game.x, game.y2);
 	ctx.lineWidth = 5;
@@ -57,6 +30,10 @@ function mainMenu() {
 	h *= 4/8;
 	ctx.font = `${h}px Sans`;
 	var spa = 2.25
+	var touch;
+	touches.forEach(obj => {
+		if(!obj.end && !obj.used && !touch) touch = obj;
+	});
 	for(let part of mainMenu.items) {
 		let {text, base, color, edge} = part;
 		let outline = selected == i? "white": color;
@@ -66,22 +43,27 @@ function mainMenu() {
 		let y = h * i * spa;
 		y += h * 3.5;
 		h *= 4/3;
-		drawShape({shape: base.shapeFill, x, y: y - (h * 3/4), size: width, sizeY: h, strokeAlpha: 0, color});
-		drawShape({shape: edge.shapeFill, x: x - h, y: y - (h * 3/4), size: h, strokeAlpha: 0, color});
-		drawShape({shape: edge.shapeFill, x: x + width, y: y - (h * 3/4), size: h, strokeAlpha: 0, color, rotation: PI});
-		drawShape({shape: base.shape, x, y: y - (h * 3/4), size: width, sizeY: h, fillAlpha: 0, color: outline});
-		drawShape({shape: edge.shape, x: x - h, y: y - (h * 3/4), size: h, fillAlpha: 0, color: outline});
-		drawShape({shape: edge.shape, x: x + width, y: y - (h * 3/4), size: h, fillAlpha: 0, color: outline, rotation: PI});
-		ctx.fillText(text, x, y);
+		drawShape({shape: base.shapeFill, x, y, size: width, sizeY: h, strokeAlpha: 0, color});
+		drawShape({shape: edge.shapeFill, x: x - h, y, size: h, strokeAlpha: 0, color});
+		drawShape({shape: edge.shapeFill, x: x + width, y, size: h, strokeAlpha: 0, color, rotation: PI});
+		drawShape({shape: base.shape, x, y, size: width, sizeY: h, fillAlpha: 0, color: outline});
+		drawShape({shape: edge.shape, x: x - h, y, size: h, fillAlpha: 0, color: outline});
+		drawShape({shape: edge.shape, x: x + width, y, size: h, fillAlpha: 0, color: outline, rotation: PI});
+		ctx.fillText(text, x, y + (h * 3/4));
+		if(touch) {
+			if(touch.x > x - h && touch.x < x + width + h && touch.y > y && touch.y < y + h) {
+				selected = i;
+			}
+		}
 		h *= 3/4;
 		i++;
 	}
-	if(keys.get(" ") == 1) {
+	if(touch || keys.get(" ") == 1) {
 		keys.set(" ", 2);
 		if(selected in mainMenu.items && mainMenu.items[selected].select) mainMenu.items[selected].select();
 	}
 }
-mainMenu.selected = 0;
+mainMenu.selected = -1;
 mainMenu.items = [{
 	text: "Story mode",
 	color: "#fa5",
@@ -92,6 +74,11 @@ mainMenu.items = [{
 	edge: {
 		shape: "trapEdge",
 		shapeFill: "trapEdgeFill"
+	},
+	select() {
+		mainMenu.stop();
+		game.level = 0;
+		onresize();
 	}
 }, {
 	text: " Challenges ",
@@ -116,16 +103,25 @@ mainMenu.items = [{
 		shapeFill: "circleEdgeFill"
 	},
 	select() {
-		mainMenu.active = false;
+		mainMenu.stop();
 		catalog.setup();
 	}
 }]
 mainMenu.setup = function() {
 	player = undefined;
+	game.level = -1;
 	enemies.clear();
 	this.active = true;
 	onresize();
-	for(let i = 0; i < 5; i++) Enemy.summonBulk(...catalog.getList());
+	while(enemies.size < 20) Enemy.summonBulk(...catalog.getList());
+	Music.get("MainMenu").play();
+	backgroundName = undefined;
+	backgroundColor = "#000";
+}
+mainMenu.stop = function() {
+	this.active = false;
+	enemies.clear();
+	Music.get("MainMenu").stop();
 }
 mainMenu.screen = function() {
 	game.x = innerWidth/2;

@@ -28,7 +28,18 @@ bckdrpGen.set("tutorial", (width, height) => createBackground(path => {
         path.lineTo(w, y);
     }
     path.stroke = "#0ff5";
-    path.update = () => {
-        path.stroke = "#00ffff" + (abs(256 - (tick % 512))/2).toString(16);
+}));
+bckdrpGen.set("catalog", (width, height) => createBackground(path => {
+    var w = width/game.scale;
+    var h = height/game.scale;
+    path.scale = game.scale;
+    for(let y = h - 1; y >= 0; y--) {
+        path.moveTo(0, y);
+        path.lineTo(h - y, h);
     }
+    for(let x = 1; x < w; x++) {
+        path.moveTo(x, 0);
+        path.lineTo(x + h, h);
+    }
+    path.stroke = "#0f0a";
 }));

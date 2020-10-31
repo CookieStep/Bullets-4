@@ -1,7 +1,7 @@
 class Player extends Entity{
 	tick() {
 		this.keys();
-		this.touchv2();
+		if(!keys.size) this.touchv2();
 	}
 	// die() {
 	//	if(!hardcore) {
@@ -54,10 +54,12 @@ class Player extends Entity{
 		if(touch) {
 			this.moveTo(touch);
 			this.touch = touch;
+			touch.used = true;
 		}
 		if(touch2) {
 			if(this.skill) this.skill.directional(touch2.x - this.mx, touch2.y - this.my);
 			this.touch2 = touch2;
+			touch2.used = true;
 		}
 	}
 	touchv2() {
@@ -92,9 +94,61 @@ class Player extends Entity{
 			ctx.stroke();
 		}
 		if(touch2) {
-			if(this.skill) this.skill.directional(touch2.x - touch2.sx, touch2.y - touch2.sy);
 			this.touch2 = touch2;
-			if(!this.skill) return;
+			if(this.skill) this.skill.directional(touch2.x - touch2.sx, touch2.y - touch2.sy);
+			else return;
+			drawShape({
+				x: touch2.sx - game.scale/4,
+				y: touch2.sy - game.scale/4,
+				size: game.scale/2,
+				color: this.color2,
+				shape: "circle"
+			});
+			ctx.lineWidth = game.scale/4;
+			ctx.beginPath();
+			ctx.strokeStyle = this.color2;
+			ctx.moveTo(touch2.sx, touch2.sy);
+			ctx.lineTo(touch2.x, touch2.y);
+			ctx.stroke();
+		}
+	}
+	touchv3() {
+		var {touch, touch2} = this;
+		if(touch && touch.end) touch = false;
+		if(!touch) touches.forEach(obj => {
+			if(obj.sx < innerWidth/2 && obj != touch2 && !obj.end && Date.now() - game.tick * 5 > obj.start) {
+				touch = obj;
+			}
+		});
+		if(!touch2) touches.forEach(obj => {
+			if(obj.sx > innerWidth/2 && obj != touch && !obj.end && Date.now() - game.tick * 5 > obj.start) {
+				touch2 = obj;
+			}
+		});
+		if(touch) {
+			this.move(radian(touch.x - touch.sx, touch.y - touch.sy));
+			this.touch = touch;
+			drawShape({
+				x: touch.sx - game.scale/4,
+				y: touch.sy - game.scale/4,
+				size: game.scale/2,
+				color: this.color,
+				shape: "circle"
+			});
+			ctx.lineWidth = game.scale/4;
+			ctx.beginPath();
+			ctx.strokeStyle = this.color;
+			ctx.moveTo(touch.sx, touch.sy);
+			ctx.lineTo(touch.x, touch.y);
+			ctx.stroke();
+		}
+		if(touch2) {
+			if(!touch2.end) {
+				this.touch2 = touch2;
+				return;
+			}else delete this.touch2;
+			if(this.skill) this.skill.directional(touch2.x - touch2.sx, touch2.y - touch2.sy);
+			else return;
 			drawShape({
 				x: touch2.sx - game.scale/4,
 				y: touch2.sy - game.scale/4,

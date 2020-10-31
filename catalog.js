@@ -1,48 +1,38 @@
 var catalog = {
 	getList() {
-		return [new Chill, new GoGo, new Underbox, new Corner, new Switch, new Ghost];
+		var list = [];
+		data.catalog.forEach(value => list.push(new (this.converter.get(value))));
+		return list;
 	},
+	/**@type {Map<string, typeof Enemy>}*/
+	converter: new Map([
+		["Chill", Chill],
+		["Go-go", GoGo],
+		["Underbox", Underbox],
+		["Edge lord", Corner]
+	]),
 	setup() {
 		this.active = true;
 		onresize();
 		this.list = this.getList();
 		this.list.forEach(enemy => enemy.spawn());
-		this.enemies = new Collection(...this.list);
+		enemies = new Collection(...this.list);
 		this.list = this.getList();
 		this.list.forEach(enemy => enemy.prepare());
 		this.selected = this.list.length;
 		this.mx = 0;
 		this.my = 0;
+		Music.get("Catalog").play();
+		backgroundName = "catalog";
+		backgroundColor = "#0a0";
 	},
 	screen() {game.x = game.scale * 2},
 	run() {
-		var {enemies} = this;
-		ctx.fillStyle = "#0005";
+		ctx.fillStyle = "#000";
 		ctx.fillRect(0, 0, game.x2, game.y2);
-		enemies.forEach(enemy => {enemy.update()});
-		{let enemiesArray = enemies.asArray();
-			for(let a = 0; a < enemiesArray.length; a++) for(let b = a + 1; b < enemiesArray.length; b++) {
-				let enemy = enemiesArray[a], enemy2 = enemiesArray[b];
-				if(Entity.isTouching(enemy, enemy2)) {
-					let s = (enemy.size + enemy2.size)/2,
-						x = enemy.mx - enemy2.mx,
-						y = enemy.my - enemy2.my;
-					x /= 10;
-					y /= 10;
-					if(x < s) {
-						enemy.velocity.x = x;
-						enemy2.velocity.x = -x;
-					}
-					if(y < s) {
-						enemy.velocity.y = y;
-						enemy2.velocity.y = -y;
-					}
-				}
-			}
-		}
 		if(this.selected != this.list.length) {
 			/**@type {Enemy}*/
-			var enemy = this.enemies.get(BigInt(this.selected));
+			var enemy = enemies.get(BigInt(this.selected));
 			var {mx, my} = enemy;
 			mx -= (game.x2)/2;
 			my -= (game.y2)/2;
@@ -66,14 +56,16 @@ var catalog = {
 			}
 		}
 		ctx.translate(-this.mx, -this.my);
-		ctx.fillStyle = "#0005";
-		ctx.fillRect(0, 0, game.x2, game.y2);
+		bctx.translate(-this.mx, -this.my);
+		main();
+		ctx.fillStyle = "#000";
+		ctx.fillRect(0, 0, game.x, game.y2);
 		ctx.lineWidth = 5;
 		ctx.strokeStyle = "white";
 		ctx.strokeRect(game.x, 0, game.x2 - game.x, game.y2);
-		enemies.forEach(enemy => enemy.draw());
 		ctx.translate(this.mx, this.my);
-		ctx.fillStyle = "#000";
+		bctx.translate(this.mx, this.my);
+		ctx.fillStyle = backgroundColor;
 		ctx.fillRect(0, 0, game.x, game.y2);
 		if(enemy) {
 			var text = enemy.name;
@@ -94,7 +86,7 @@ var catalog = {
 			ctx.stroke();
 			ctx.fillStyle = enemy.color2 || "black";
 			ctx.fillText(text, game.x + game.scale/4, game.scale/2);
-			if(true) {
+			{
 				width = 0;
 				let amo = 0;
 				enemy.description.forEach(value => {
@@ -125,16 +117,49 @@ var catalog = {
 		if(keys.has("ArrowLeft")) keys.set("ArrowLeft", 2);
 		if(keys.has("ArrowRight")) keys.set("ArrowRight", 2);
 		this.selected = (this.selected + this.list.length + 1) % (this.list.length + 1);
+		var touch;
+		touches.forEach(obj => {
+			if(!obj.end && !obj.used && !touch) touch = obj;
+		});
+		var hit;
+		var s = game.scale * 2;
 		this.list.forEach((enemy, i) => {
 			i = +i;
+			var y = s * i;
 			enemy.mx = game.x/2;
-			enemy.y = i * game.scale * 2;
+			enemy.y = i * s;
 			enemy.y += game.scale/2;
+			if(touch) {
+				if(touch.x < s && touch.y > y && touch.y < y + s) {
+					this.selected = i;
+					hit = true;
+				}
+			}
 			if(this.selected == i) {
 				ctx.fillStyle = "white";
-				ctx.fillRect(0, game.scale * 2 * i, game.scale * 2, game.scale * 2);
+				ctx.fillRect(0, y, s, s);
 			}
 			enemy.draw();
 		});
+		ctx.fillStyle = "white";
+		var y = game.y2 - s;
+		var end;
+		if(touch) {
+			if(touch.x < s && touch.y > y && touch.y < y + s) {
+				end = true;
+			}
+		}
+		if(touch && !hit) this.selected = this.list.length;
+		ctx.fillRect(0, y, s, s);
+		drawShape({x: 0, y: y, size: s, shape: "arrow", color: "red", rotation: PI});
+		if(keys.get("Backspace") == 1) {
+			keys.set("Backspace", 2);
+			end = true;
+		}
+		if(end) {
+			this.active = false;
+			Music.get("Catalog").stop();
+			mainMenu.setup();
+		}
 	}
 }

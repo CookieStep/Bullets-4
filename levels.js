@@ -19,6 +19,7 @@ var generateLevel = [
 			},
 			new levelPart({
 				wait: 2500,
+				setBackground: "tutorial",
 				dialogue: [{
 					text: "Wait...",
 					color: "white",
@@ -82,7 +83,7 @@ var generateLevel = [
 			})
 		), new levelPhase(
 			(phase) => {
-				if(!player.alive) {
+				if(player && !player.alive) {
 					player = new Player().spawn();
 					if(hardcore)
 						phase.reset()
@@ -200,7 +201,7 @@ var generateLevel = [
 		),
 		new levelPhase(
 			(phase) => {
-				if(!player.alive) {
+				if(player && !player.alive) {
 					player = new Player().spawn();
 					player.skill = new Gun(player);
 					if(hardcore)
@@ -241,146 +242,149 @@ var generateLevel = [
 				}],
 				phasePause: true
 			}),
+			new levelPart({
+				saveData: {
+					firstRun: false
+				},
+				mainMenu: true,
+				endBgm: "Tutorial"
+			})
 			// new levelPart({
-			// 	mainMenu: true,
-			// 	endBgm: "Tutorial"
+			// 	wait: 1000,
+			// 	dialogue: [{
+			// 		text: "Unfortunately Pretty much everything else is unfinished right now",
+			// 		color: "white"
+			// 	}, {
+			// 		text: "But that doesn't mean that I can't give you more things to fight in the meantime...",
+			// 		color: "white",
+			// 		onFinished(part, phase, level) {level.next()}
+			// 	}],
+			// 	endBgm: "Tutorial",
+			// 	startBgm: "Level-1",
+			// 	phasePause: true
 			// })
-			new levelPart({
-				wait: 1000,
-				dialogue: [{
-					text: "Unfortunately Pretty much everything else is unfinished right now",
-					color: "white"
-				}, {
-					text: "But that doesn't mean that I can't give you more things to fight in the meantime...",
-					color: "white",
-					onFinished(part, phase, level) {level.next()}
-				}],
-				endBgm: "Tutorial",
-				startBgm: "Level-1",
-				phasePause: true
-			})
-		),
-		new levelPhase(
-			(phase) => {
-				if(!player.alive) {
-					player = new Player().spawn();
-					player.skill = new Gun(player);
-					if(hardcore)
-						phase.reset()
-				}
-			},
-			new levelPart({
-				wait: 1000,
-				dialogue: [{
-					text: "Let's get started",
-					color: "white",
-					onFinished(part, phase) {phase.next()}
-				}],
-				partPause: true
-			}),
-			new levelPart({
-				wait: 500,
-				summons: [{enemy: Chill, amount: 5}, {enemy: GoGo, amount: 5}],
-				nextPart: true
-			}),
-			new levelPart({
-				wait: 5000,
-				script(part, phase) {if(!enemies.size) phase.next()}
-			}),
-			new levelPart({
-				wait: 1000,
-				dialogue: [{
-					text: "Alright alright, lets try something new.",
-					color: "white",
-					onFinished(part, phase) {phase.next()}
-				}],
-				partPause: true
-			}),
-			new levelPart({
-				wait: 500,
-				summons: [{enemy: Underbox, amount: 5}],
-				nextPart: true
-			}),
-			new levelPart({
-				wait: 5000,
-				script(part, phase) {if(!enemies.size) phase.next()}
-			}),
-			new levelPart({
-				wait: 1000,
-				dialogue: [{
-					text: "These are fun, aren't they?",
-					color: "white",
-					onFinished(part, phase) {phase.next()}
-				}],
-				partPause: true
-			}),
-			new levelPart({
-				wait: 500,
-				summons: [{enemy: Underbox, amount: 5}, {enemy: GoGo, amount: 5}],
-				nextPart: true
-			}),
-			new levelPart({
-				wait: 5000,
-				script(part, phase) {if(!enemies.size) phase.next()}
-			}),
-			new levelPart({
-				wait: 1000,
-				dialogue: [{
-					text: "Hmm. Still here are you?",
-					color: "white",
-					onFinished(part, phase) {phase.next()}
-				}],
-				partPause: true
-			}),
-			new levelPart({
-				wait: 500,
-				summons: [{enemy: Underbox, amount: 10}],
-				nextPart: true
-			}),
-			new levelPart({
-				wait: 5000,
-				script(part, phase) {if(!enemies.size) phase.next()}
-			}),
-			new levelPart({
-				wait: 1000,
-				dialogue: [{
-					text: "Guess you want something else new, huh?",
-					color: "white"
-				}, {
-					text: "Fine.",
-					color: "white",
-					continued: true
-				}, {
-					text: "Fine. But I can only give you one more.",
-					color: "white",
-					onFinished(part, phase) {phase.next()}
-				}],
-				partPause: true
-			}),
-			new levelPart({
-				wait: 500,
-				summons: [{enemy: Underbox, amount: 5}, {enemy: Corner, amount: 5}],
-				nextPart: true
-			}),
-			new levelPart({
-				wait: 5000,
-				script(part, phase) {if(!enemies.size) phase.next()}
-			}),
-			new levelPart({
-				wait: 1000,
-				dialogue: [{
-					text: "Well, that's all I've got for you.",
-					color: "white",
-					auto: false,
-					continued: true
-				}, {
-					text: "Well, that's all I've got for you. I'ma send you back to the begining now.",
-					color: "white",
-					auto: false,
-					onFinished(part, phase) {phase.reset()}
-				}],
-				partPause: true
-			})
-		)
+		)//,
+		// new levelPhase(
+		// 	(phase) => {
+		// 		if(!player.alive) {
+		// 			player = new Player().spawn();
+		// 			player.skill = new Gun(player);
+		// 			if(hardcore)
+		// 				phase.reset()
+		// 		}
+		// 	},
+		// 	new levelPart({
+		// 		wait: 1000,
+		// 		dialogue: [{
+		// 			text: "Let's get started",
+		// 			color: "white",
+		// 			onFinished(part, phase) {phase.next()}
+		// 		}],
+		// 		partPause: true
+		// 	}),
+		// 	new levelPart({
+		// 		wait: 500,
+		// 		summons: [{enemy: Chill, amount: 5}, {enemy: GoGo, amount: 5}],
+		// 		nextPart: true
+		// 	}),
+		// 	new levelPart({
+		// 		wait: 5000,
+		// 		script(part, phase) {if(!enemies.size) phase.next()}
+		// 	}),
+		// 	new levelPart({
+		// 		wait: 1000,
+		// 		dialogue: [{
+		// 			text: "Alright alright, lets try something new.",
+		// 			color: "white",
+		// 			onFinished(part, phase) {phase.next()}
+		// 		}],
+		// 		partPause: true
+		// 	}),
+		// 	new levelPart({
+		// 		wait: 500,
+		// 		summons: [{enemy: Underbox, amount: 5}],
+		// 		nextPart: true
+		// 	}),
+		// 	new levelPart({
+		// 		wait: 5000,
+		// 		script(part, phase) {if(!enemies.size) phase.next()}
+		// 	}),
+		// 	new levelPart({
+		// 		wait: 1000,
+		// 		dialogue: [{
+		// 			text: "These are fun, aren't they?",
+		// 			color: "white",
+		// 			onFinished(part, phase) {phase.next()}
+		// 		}],
+		// 		partPause: true
+		// 	}),
+		// 	new levelPart({
+		// 		wait: 500,
+		// 		summons: [{enemy: Underbox, amount: 5}, {enemy: GoGo, amount: 5}],
+		// 		nextPart: true
+		// 	}),
+		// 	new levelPart({
+		// 		wait: 5000,
+		// 		script(part, phase) {if(!enemies.size) phase.next()}
+		// 	}),
+		// 	new levelPart({
+		// 		wait: 1000,
+		// 		dialogue: [{
+		// 			text: "Hmm. Still here are you?",
+		// 			color: "white",
+		// 			onFinished(part, phase) {phase.next()}
+		// 		}],
+		// 		partPause: true
+		// 	}),
+		// 	new levelPart({
+		// 		wait: 500,
+		// 		summons: [{enemy: Underbox, amount: 10}],
+		// 		nextPart: true
+		// 	}),
+		// 	new levelPart({
+		// 		wait: 5000,
+		// 		script(part, phase) {if(!enemies.size) phase.next()}
+		// 	}),
+		// 	new levelPart({
+		// 		wait: 1000,
+		// 		dialogue: [{
+		// 			text: "Guess you want something else new, huh?",
+		// 			color: "white"
+		// 		}, {
+		// 			text: "Fine.",
+		// 			color: "white",
+		// 			continued: true
+		// 		}, {
+		// 			text: "Fine. But I can only give you one more.",
+		// 			color: "white",
+		// 			onFinished(part, phase) {phase.next()}
+		// 		}],
+		// 		partPause: true
+		// 	}),
+		// 	new levelPart({
+		// 		wait: 500,
+		// 		summons: [{enemy: Underbox, amount: 5}, {enemy: Corner, amount: 5}],
+		// 		nextPart: true
+		// 	}),
+		// 	new levelPart({
+		// 		wait: 5000,
+		// 		script(part, phase) {if(!enemies.size) phase.next()}
+		// 	}),
+		// 	new levelPart({
+		// 		wait: 1000,
+		// 		dialogue: [{
+		// 			text: "Well, that's all I've got for you.",
+		// 			color: "white",
+		// 			auto: false,
+		// 			continued: true
+		// 		}, {
+		// 			text: "Well, that's all I've got for you. I'ma send you back to the begining now.",
+		// 			color: "white",
+		// 			auto: false,
+		// 			onFinished(part, phase) {phase.reset()}
+		// 		}],
+		// 		partPause: true
+		// 	})
+		// )
 	)
 ];

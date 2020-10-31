@@ -26,12 +26,14 @@ class Ghost extends Chill{
 			var dis = Entity.distance(this, player);
 			if(dis < this.size * 10) this.dis = dis/(10 * this.size);
 			else this.dis = 1;
-			if(this.fade > -1) --this.fade;
+			if(this.fade > -1) this.fade -= 25;
+			if(this.fade < -1) this.fade = -1;
 		}else{
 			if(this.fade == -1) this.fade = 0;
 			this.fade++;
 			this.fade %= 1000;
 		}
+		if(abs(this.velocity.x) > this.size/100 || abs(this.velocity.y) > this.size/100) this.fade = 0;
 	}
 	prepare() {
 		this.fade = 250;
