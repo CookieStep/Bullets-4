@@ -1,5 +1,7 @@
 function update(e) {
-	if(Date.now() < update.last + (game.tick)) {update.run(); return;}
+	if(Date.now() < update.last + (game.tick)) {update.run(); return}
+	update.last = Date.now();
+	update.run();
 	if(mainMenu.active) {
 		mainMenu();
 	}else if(catalog.active) {
@@ -37,6 +39,7 @@ function update(e) {
 			for(let a = 0; a < enemiesArray.length; a++) for(let b = a + 1; b < enemiesArray.length; b++) {
 				let enemy = enemiesArray[a], enemy2 = enemiesArray[b];
 				if(Entity.isTouching(enemy, enemy2)) {
+					SFX.get("Wall").play();
 					let s = (enemy.size + enemy2.size)/2,
 						x = enemy.mx - enemy2.mx,
 						y = enemy.my - enemy2.my;
@@ -104,8 +107,6 @@ function update(e) {
 	pen.clearRect(0, 0, innerWidth, innerHeight);
 	pen.drawImage(background, 0, 0);
 	pen.drawImage(foreground, 0, 0);
-	update.last = Date.now();
-	update.run();
 }
 update.run = () => update.request = requestAnimationFrame(update);
 /**@type {Map<string, (1 | 2 | 3)>}*/
@@ -118,7 +119,7 @@ onload = () => {
 	onresize();
 	document.body.appendChild(canvas);
 	//mainMenu.setup();
-	update();
+	update.run();
 }
 onresize = () => {
 	assign(canvas, {
@@ -143,6 +144,14 @@ onresize = () => {
 	backgrounds.clear();
 	if(mainMenu.active) mainMenu.screen();
 	else if(catalog.active) catalog.screen();
+}
+onblur = () => {
+	cancelAnimationFrame(update.request);
+	Music.forEach(bgm => bgm.pause());
+}
+onfocus = () => {
+	Music.forEach(bgm => bgm.resume());
+	update.run();
 }
 // var keyBind = {
 //     back: 8,

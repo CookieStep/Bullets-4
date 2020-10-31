@@ -9,17 +9,19 @@ class Player extends Entity{
 	//		this.hp = this.maxHp;
 	//	}
 	// }
+	deathSFX = "Death";
 	/**Moves the player to the middle of the screen*/
 	pickLocation() {
 		this.x = (innerWidth - this.size)/2;
 		this.y = (innerHeight - this.size)/2;
 		enemies.forEach(enemy => {
-			if(Entity.distance(this, enemy) < 10 * game.scale) {
+			if(Entity.distance(this, enemy) < 5 * game.scale) {
 				var radian = Entity.radianTo(this, enemy);
-				enemy.velocity.x += cos(radian) * enemy.size;
-				enemy.velocity.y += sin(radian) * enemy.size;
+				enemy.x += cos(radian) * enemy.size * 5;
+				enemy.y += sin(radian) * enemy.size * 5;
 			}
 		});
+		SFX.get("Spawn").play();
 		Particle.summon(new Shockwave(this, 15 * game.scale));
 	}
 	/**React to pressed keys*/

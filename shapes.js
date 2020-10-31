@@ -65,6 +65,18 @@ class Shape extends Path2D{
 		path.quadraticCurveTo(1, 0, 1, 1);
 		path.closePath();
 	}));
+	shapes.set("4star", createShape(path => {
+		path.scale = 8;
+		path.moveTo(0, 0);
+		path.lineTo(4, 1);
+		path.lineTo(8, 0);
+		path.lineTo(7, 4);
+		path.lineTo(8, 8);
+		path.lineTo(4, 7);
+		path.lineTo(0, 8);
+		path.lineTo(1, 4);
+		path.closePath();
+	}));
 		//Bases
 		//Icons
 	shapes.set("arrow", createShape(path => {

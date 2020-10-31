@@ -3,13 +3,14 @@ class Exp extends Entity{
 		super(parent);
 		this.rad = rad;
 	}
+	r = random(PI);
+	rspd = random(PI/16, PI/-16);
 	spd = 0.075;
+	deathSFX = "Xp";
 	tick() {
-		if(player && player.alive) {
-			if(Entity.distance(this, player) < 5 * game.scale) {
-				this.moveTo(player);
-			}
-		}
+		if(player && player.alive && Entity.distance(this, player) < 5 * game.scale)
+			this.moveTo(player);
+		this.r += this.rspd;
 	}
 	pickLocation() {
 		var {parent} = this;
@@ -24,4 +25,6 @@ class Exp extends Entity{
 		for(let i = 0; i < 10; i++)
 			exp.push(new Exp(dead, r * i + s).spawn());
 	}
+	color = "#ff5";
+	get rotation() {return this.r}
 }

@@ -9,6 +9,7 @@ class Entity{
 	friction = 0.9;
 	x = 0; y = 0;
 	id = -1n;
+	wallSFX = true;
 	color = "white";
 	shape = "square";
 	get size() {return game.scale * this.scale}
@@ -27,7 +28,12 @@ class Entity{
 		this.hp -= attacker.atk;
 		if(!this.alive) this.die();
 	}
-	die() {}
+	die() {
+		if(SFX.has(this.deathSFX)) SFX.get(this.deathSFX).play();
+	}
+	/**Plays when this entity dies
+	 * @type {string}*/
+	deathSFX;
 	get alive() {return this.hp > 0}
 	update() {
 		if(this.skill) this.skill.update();
@@ -87,7 +93,10 @@ class Entity{
 			this.y = y2 - this.size;
 			velocity.y = Entity.wall(velocity.y, onWall, -1);
 		}
-		if(wallX || wallY) this.hitWall(wallX, wallY);
+		if(wallX || wallY) {
+			if(this.wallSFX) SFX.get("Wall").play();
+			this.hitWall(wallX, wallY);
+		}
 	}
 	tick() {}
 	/**@param {boolean} x Hit the x wall? @param {boolean} y Hit the y wall?*/

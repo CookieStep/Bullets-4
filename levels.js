@@ -38,6 +38,7 @@ var generateLevel = [
 						x: 0, y: (innerHeight - player.size)/2,
 						velocity: {x: player.size * 2, y: 0}
 					});
+					SFX.get("Spawn").play();
 				},
 				startBgm: "Tutorial",
 				nextPart: true
@@ -77,7 +78,7 @@ var generateLevel = [
 					get text() {return touches.size? "Just press and hold.": "Use the W A S D keys"},
 					color: "white"
 				}],
-				phasePause: true
+				partPause: true
 			})
 		), new levelPhase(
 			(phase) => {
@@ -134,7 +135,7 @@ var generateLevel = [
 				nextPart: true
 			}),
 			new levelPart({
-				wait: 1000,
+				wait: 3000,
 				dialogue: [{
 					text: "See, now this is more like it.",
 					color: "white",
@@ -189,6 +190,8 @@ var generateLevel = [
 					color: "white",
 					onFinished(part, phase, level) {
 						player.skill = new Gun(player);
+						player.skill.sk = player.skill.rsk * 2;
+						SFX.get("PowerUp").play();
 						level.next();
 					}
 				}],
@@ -222,7 +225,10 @@ var generateLevel = [
 				summons: [{enemy: Chill, amount: 5}, {enemy: GoGo, amount: 5}],
 				nextPart: true
 			}),
-			new levelPart({script(part, phase) {if(!enemies.size) phase.setPart(3)}}),
+			new levelPart({
+				wait: 5000,
+				script(part, phase) {if(!enemies.size) phase.setPart(3)}
+			}),
 			new levelPart({
 				wait: 100,
 				dialogue: [{
@@ -277,7 +283,10 @@ var generateLevel = [
 				summons: [{enemy: Chill, amount: 5}, {enemy: GoGo, amount: 5}],
 				nextPart: true
 			}),
-			new levelPart({script(part, phase) {if(!enemies.size) phase.next()}}),
+			new levelPart({
+				wait: 5000,
+				script(part, phase) {if(!enemies.size) phase.next()}
+			}),
 			new levelPart({
 				wait: 1000,
 				dialogue: [{
@@ -292,7 +301,10 @@ var generateLevel = [
 				summons: [{enemy: Underbox, amount: 5}],
 				nextPart: true
 			}),
-			new levelPart({script(part, phase) {if(!enemies.size) phase.next()}}),
+			new levelPart({
+				wait: 5000,
+				script(part, phase) {if(!enemies.size) phase.next()}
+			}),
 			new levelPart({
 				wait: 1000,
 				dialogue: [{
@@ -307,7 +319,10 @@ var generateLevel = [
 				summons: [{enemy: Underbox, amount: 5}, {enemy: GoGo, amount: 5}],
 				nextPart: true
 			}),
-			new levelPart({script(part, phase) {if(!enemies.size) phase.next()}}),
+			new levelPart({
+				wait: 5000,
+				script(part, phase) {if(!enemies.size) phase.next()}
+			}),
 			new levelPart({
 				wait: 1000,
 				dialogue: [{
@@ -322,7 +337,10 @@ var generateLevel = [
 				summons: [{enemy: Underbox, amount: 10}],
 				nextPart: true
 			}),
-			new levelPart({script(part, phase) {if(!enemies.size) phase.next()}}),
+			new levelPart({
+				wait: 5000,
+				script(part, phase) {if(!enemies.size) phase.next()}
+			}),
 			new levelPart({
 				wait: 1000,
 				dialogue: [{
@@ -344,7 +362,10 @@ var generateLevel = [
 				summons: [{enemy: Underbox, amount: 5}, {enemy: Corner, amount: 5}],
 				nextPart: true
 			}),
-			new levelPart({script(part, phase) {if(!enemies.size) phase.next()}}),
+			new levelPart({
+				wait: 5000,
+				script(part, phase) {if(!enemies.size) phase.next()}
+			}),
 			new levelPart({
 				wait: 1000,
 				dialogue: [{

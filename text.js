@@ -24,7 +24,11 @@ dialogue.draw = () => {
 		dialogue.active = false;
 	return}
 	if(line.text.length > dialogue.text.length) {
-		dialogue.text = `${dialogue.text}${line.text[dialogue.text.length]}`;
+		if(tick % 2 == 0) {
+			let txt = line.text[dialogue.text.length];
+			dialogue.text = `${dialogue.text}${txt}`;
+			if(!dialogue.skip.includes(txt)) SFX.get("Text").play();
+		}
 	}else ++dialogue.idle;
 	let s = game.scale;
 	ctx.font = `${s}px Arial`;
@@ -48,6 +52,7 @@ dialogue.draw = () => {
 	for(let line of lines)
 		ctx.fillText(line, 0, innerHeight - (lines.length - a++) * s + s/2);
 }
+dialogue.skip = " ,.!?";
 dialogue.update = () => {
 	var touch;
 	touches.forEach(obj => {

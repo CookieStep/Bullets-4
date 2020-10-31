@@ -6,18 +6,18 @@ class Enemy extends Entity{
 			++tries;
 			good = !(player && player.alive) || Entity.distance(player, this) > game.scale * 5;
 		}while(good && tries < 10);
+		if(good) SFX.get("Spawn").play();
 		return good? this: good;
 	}
 	die() {
+		super.die();
 		Exp.summon(this);
 	}
+	deathSFX = "Hit";
 	/**@param {Enemy} enemy*/
 	static summon(enemy) {
 		enemy = enemy.spawn();
-		if(enemy) {
-			var id = enemies.push(enemy);
-			enemy.id = id;
-		}
+		if(enemy) Particle.summon(new Spawner(enemy, enemies));
 		return enemy;
 	}
 	/**@param {Enemy[]} enemies*/
@@ -125,6 +125,7 @@ class Corner extends Enemy{
 			this.pickDir();
 		}
 	}
+	wallSFX = false;
 	color = "#ffa";
 	color2 = "#ec0";
 	shape2 = "4square";

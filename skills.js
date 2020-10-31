@@ -19,13 +19,12 @@ class Gun extends Skill{
 		bullet.x += player.size * x/2;
 		bullet.y += player.size * y/2;
 		bullets.push(bullet);
+		SFX.get("Shoot").play();
 	}
 	update() {
 		if(this.lastShot) this.lastShot--;
 		var a = 20 - floor(this.sk/this.rsk);
-		if(a > 0) {
-			this.sk += a/320;
-		}
+		if(a > 0) this.sk += a/320;
 	}
 	draw() {
 		var {user} = this;
