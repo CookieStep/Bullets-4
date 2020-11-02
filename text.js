@@ -59,7 +59,7 @@ dialogue.update = () => {
 			obj.used = true;
 		}
 	});
-	if((dialogue.idle * game.tick > 1000 && dialogue.lines[0].auto) || touch || keys.get(" ") == 1) {
+	if((dialogue.idle * game.tick > 1000 && dialogue.lines[0].auto) || touch || keys.get("select") == 1) {
 		if(keys.has("select")) keys.set("select", 2);
 		var line = dialogue.lines.shift();
 		dialogue.idle = 0;

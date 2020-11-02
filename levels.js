@@ -53,7 +53,7 @@ var generateLevel = [
 					color: TopHat.textColor,
 					onFinished(part, phase) {phase.setPart(3)}
 				}],
-				phasePause: true
+				partPause: true
 			}),
 			new levelPart({
 				wait: 5000,
@@ -70,7 +70,7 @@ var generateLevel = [
 					auto: false,
 					onFinished(part, phase) {phase.setPart(4)}
 				}],
-				phasePause: true
+				partPause: true
 			}),
 			new levelPart({
 				wait: 5000,
@@ -98,7 +98,7 @@ var generateLevel = [
 					color: TopHat.textColor,
 					onFinished(part, phase) {phase.setPart(1)}
 				}],
-				phasePause: true
+				partPause: true
 			}),
 			new levelPart({
 				wait: 1000,
