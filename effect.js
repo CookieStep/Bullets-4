@@ -42,9 +42,9 @@ class Shockwave extends Particle{
 		this.my = parent.my;
 		if(typeof this.my != "number") this.my = parent.y;
 		this.Msize = size;
-		this.scale = 0;
 		this.px = this.mx;
 		this.py = this.my;
+		this.scale = 0;
 	}
 	get alive() {return this.size < this.Msize}
 	tick() {
@@ -63,6 +63,8 @@ class Spawner extends Particle{
 	constructor(parent, collection) {
 		super(parent);
 		parent.update();
+		this.scale = this.parent.scale * 2;
+		if(parent.spawner) this.hue = parent.spawner;
 		this.collection = collection;
 	}
 	tick() {
@@ -73,7 +75,7 @@ class Spawner extends Particle{
 			var id = this.collection.push(parent);
 			parent.id = id;
 		}
-		this.color = `hsl(0, 100%, ${50 + abs(25 - (this.time % 50)) * 2}%)`;
+		this.color = `hsl(${this.hue}, 100%, ${50 + abs(25 - (this.time % 50)) * 2}%)`;
 	}
 	draw() {
 		var {parent} = this;
@@ -81,6 +83,7 @@ class Spawner extends Particle{
 		parent.draw();
 	}
 	get alive() {return this.time >= 0}
+	hue = 0;
 	time = 100;
 	scale = 2;
 	shape = "4star";

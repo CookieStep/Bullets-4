@@ -6,12 +6,16 @@ class Entity{
 	name = "Entity";
 	description = ["This is like,", "where you should write a description."];
 	velocity = {x: 0, y: 0};
+	knockback = 1;
+	knockRes = 1;
 	friction = 0.9;
 	x = 0; y = 0;
 	id = -1n;
 	wallSFX = true;
 	color = "white";
 	shape = "square";
+	color2 = "black";
+	shape2 = "";
 	get size() {return game.scale * this.scale}
 	scale = 1;
 	spd = 0.015;
@@ -108,9 +112,12 @@ class Entity{
 		this.velocity.y *= sqrt(this.friction);
 	}
 	moveTo(x, y) {
-		if(typeof x == "number") this.move(radian(x - this.mx, y - this.my));
-		else if("mx" in x) this.move(radian(x.mx - this.mx, x.my - this.my));
+		if(typeof x == "number") {
+			this.move(radian(x - this.mx, y - this.my));
+			return Entity.distance(this, {x, y});
+		}else if("mx" in x) this.move(radian(x.mx - this.mx, x.my - this.my));
 		else if("x" in x) this.move(radian(x.x - this.mx, x.y - this.my));
+		return Entity.distance(this, x);
 	}
 	prepare() {}
 	draw() {
@@ -177,7 +184,11 @@ class Entity{
 	/**Distance between a and b
 	 * @param {Entity} a @param {Entity} b*/
 	static distance(a, b) {
-		var dis = {x: a.x - b.x, y: a.y - b.y};
+		var x = a.mx == undefined? a.x: a.mx;
+		var y = a.my == undefined? a.y: a.my;
+		var x2 = b.mx == undefined? b.x: b.mx;
+		var y2 = b.my == undefined? b.y: b.my;
+		var dis = {x: x - x2, y: y - y2};
 		return sqrt((dis.y * dis.y) + (dis.x * dis.x));
 	}
 	/**Is a touching b?
@@ -187,6 +198,23 @@ class Entity{
 	/**Radian from a to b
 	 * @param {Entity} a @param {Entity} b*/
 	static radianTo = (a, b) => radian(b.x - a.x, b.y - a.y);
+	/** @param {Entity} a @param {Entity} b*/
+	static collide = (a, b, focus) => {
+		if(focus) SFX.get("Wall").play();
+		let s = (a.size + b.size)/2,
+			x = a.mx - b.mx,
+			y = a.my - b.my;
+		x /= 10;
+		y /= 10;
+		if(x < s) {
+			a.velocity.x = (x * b.knockback) * a.knockRes;
+			b.velocity.x = (-x * a.knockback) * b.knockRes;
+		}
+		if(y < s) {
+			a.velocity.y = (y * b.knockback) * a.knockRes;
+			b.velocity.y = (-y * a.knockback) * b.knockRes;
+		}
+	}
 }
 const
 	BOUNCE = Symbol("Bounce"),

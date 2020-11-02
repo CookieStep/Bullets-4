@@ -24,11 +24,9 @@ dialogue.draw = () => {
 		dialogue.active = false;
 	return}
 	if(line.text.length > dialogue.text.length) {
-		if(tick % 2 == 0) {
-			let txt = line.text[dialogue.text.length];
-			dialogue.text = `${dialogue.text}${txt}`;
-			if(!dialogue.skip.includes(txt)) SFX.get("Text").play();
-		}
+		let txt = line.text[dialogue.text.length];
+		dialogue.text = `${dialogue.text}${txt}`;
+		if(!dialogue.skip.includes(txt)) SFX.get("Text").play();
 	}else ++dialogue.idle;
 	let s = game.scale;
 	ctx.font = `${s}px Arial`;
@@ -62,7 +60,7 @@ dialogue.update = () => {
 		}
 	});
 	if((dialogue.idle * game.tick > 1000 && dialogue.lines[0].auto) || touch || keys.get(" ") == 1) {
-		if(keys.has(" ")) keys.set(" ", 2);
+		if(keys.has("select")) keys.set("select", 2);
 		var line = dialogue.lines.shift();
 		dialogue.idle = 0;
 		if(line.text.length > dialogue.text.length) {

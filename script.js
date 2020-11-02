@@ -3,6 +3,7 @@ function update(e) {
 	update.last = Date.now();
 	if(mainMenu.active) mainMenu();
 	else if(catalog.active) catalog.run();
+	else if(levelMenu.active) levelMenu();
 	else main();
 	pen.clearRect(0, 0, innerWidth, innerHeight);
 	pen.drawImage(background, 0, 0);
@@ -10,13 +11,18 @@ function update(e) {
 	update.run();
 	saveData();
 }
+function reset() {
+	onresize();
+    game.reset();
+    Music.forEach(bgm => bgm.stop());
+    enemies.clear();
+    bullets.clear();
+    exp.clear();
+    particles.clear();
+	npcs.clear();
+}
 update.run = () => update.request = requestAnimationFrame(update);
 /**@type {Map<string, (1 | 2 | 3)>}*/
-var keys = new Map;
-onkeydown = (e) => keys.has(e.key)?
-	keys.set(e.key, 3): keys.set(e.key, 1);
-onkeyup = (e) =>
-	keys.delete(e.key);
 onload = () => {
 	onresize();
 	document.body.appendChild(canvas);
@@ -56,17 +62,13 @@ onfocus = () => {
 	Music.forEach(bgm => bgm.resume());
 	update.run();
 }
-// var keyBind = {
-//     back: 8,
-//     down: 83,
-//     down2: 40,
-//     enter: 13,
-//     glide: 16,
-//     left: 65,
-//     left2: 37,
-//     right: 68,
-//     right2: 39,
-//     select: 32,
-//     up: 87,
-//     up2: 38
-// }
+var keys = new Map;
+onkeydown = e => {
+	var key = data.keyBind[e.code];
+	if(keys.has(key)) keys.set(key, 3);
+	else keys.set(key, 1);
+}
+onkeyup = e => {
+	var key = data.keyBind[e.code];
+	keys.delete(key);
+}

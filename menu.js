@@ -7,12 +7,18 @@ function mainMenu() {
 	ctx.moveTo(game.x, 0);
 	ctx.lineTo(game.x, game.y2);
 	ctx.stroke();
-	if(keys.get("ArrowDown") == 1 || keys.get("ArrowLeft") == 1) mainMenu.selected++;
-	if(keys.get("ArrowUp") == 1 || keys.get("ArrowRight") == 1) mainMenu.selected--;
-	if(keys.has("ArrowDown")) keys.set("ArrowDown", 2);
-	if(keys.has("ArrowUp")) keys.set("ArrowUp", 2);
-	if(keys.has("ArrowLeft")) keys.set("ArrowLeft", 2);
-	if(keys.has("ArrowRight")) keys.set("ArrowRight", 2);
+	var any = (...list) => {
+		var any = false;
+		list.forEach(v => {
+			if(!any && (keys.get(v) == 1 || keys.get(v) == 3)) any = true;
+		});
+		return any;
+	}
+	if(any("down", "down2", "right", "right2")) mainMenu.selected++;
+	if(any("up", "up2", "left", "left2")) mainMenu.selected--;
+	["up", "up2", "left", "left2", "right", "right2", "down", "down2"].forEach(key => {
+		if(keys.has(key)) keys.set(key, 2);
+	});
 	mainMenu.selected = (mainMenu.selected + mainMenu.items.length + 1) % (mainMenu.items.length + 1);
 	var {selected} = mainMenu;
 	var h = innerHeight/6;
@@ -27,7 +33,7 @@ function mainMenu() {
 	ctx.fillStyle = color;
 	ctx.fillText(text, x, h);
 	let i = 0;
-	h *= 4/8;
+	h *= 1/2;
 	ctx.font = `${h}px Sans`;
 	var spa = 2.25
 	var touch;
@@ -50,16 +56,18 @@ function mainMenu() {
 		drawShape({shape: edge.shape, x: x - h, y, size: h, fillAlpha: 0, color: outline});
 		drawShape({shape: edge.shape, x: x + width, y, size: h, fillAlpha: 0, color: outline, rotation: PI});
 		ctx.fillText(text, x, y + (h * 3/4));
-		if(touch) {
+		if(touch && !touch.used) {
 			if(touch.x > x - h && touch.x < x + width + h && touch.y > y && touch.y < y + h) {
 				selected = i;
+				touch.used = true;
 			}
 		}
 		h *= 3/4;
 		i++;
 	}
-	if(touch || keys.get(" ") == 1) {
-		keys.set(" ", 2);
+	if((touch && touch.used) || keys.get("select") == 1) {
+		keys.set("select", 2);
+		if(touch) touch.used = true;
 		if(selected in mainMenu.items && mainMenu.items[selected].select) mainMenu.items[selected].select();
 	}
 }
@@ -77,8 +85,7 @@ mainMenu.items = [{
 	},
 	select() {
 		mainMenu.stop();
-		game.level = 0;
-		onresize();
+		levelMenu.setup();
 	}
 }, {
 	text: " Challenges ",

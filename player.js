@@ -1,19 +1,17 @@
 class Player extends Entity{
 	tick() {
 		this.keys();
-		if(!keys.size) this.touchv2();
+		switch(data.touchStyle) {
+			case 1: this.touchv1();
+			case 2: this.touchv2();
+			case 3: this.touchv3();
+		}
 	}
-	// die() {
-	//	if(!hardcore) {
-	//		this.spawn();
-	//		this.hp = this.maxHp;
-	//	}
-	// }
 	deathSFX = "Death";
 	/**Moves the player to the middle of the screen*/
 	pickLocation() {
-		this.x = (innerWidth - this.size)/2;
-		this.y = (innerHeight - this.size)/2;
+		this.mx = innerWidth/2;
+		this.my = innerHeight/2;
 		enemies.forEach(enemy => {
 			if(Entity.distance(this, enemy) < 5 * game.scale) {
 				var radian = Entity.radianTo(this, enemy);
@@ -22,41 +20,45 @@ class Player extends Entity{
 			}
 		});
 		SFX.get("Spawn").play();
-		Particle.summon(new Shockwave(this, 15 * game.scale));
+		Particle.summon(new Shockwave(this, 10 * game.scale));
 	}
 	/**React to pressed keys*/
 	keys() {
 		//wasd
-		this.velocity.x += this.size * this.spd * (keys.has("d") - keys.has("a"));
-		this.velocity.y += this.size * this.spd * (keys.has("s") - keys.has("w"));
+		this.velocity.x += this.size * this.spd * (keys.has("right") - keys.has("left"));
+		this.velocity.y += this.size * this.spd * (keys.has("down") - keys.has("up"));
 		//Arrow keys
 		var [x, y] = [0, 0];
-		if(keys.has("ArrowRight")) x++;
-		if(keys.has("ArrowLeft")) x--;
-		if(keys.has("ArrowDown")) y++;
-		if(keys.has("ArrowUp")) y--;
+		if(keys.has("right2")) x++;
+		if(keys.has("left2")) x--;
+		if(keys.has("down2")) y++;
+		if(keys.has("up2")) y--;
+		this.skl = Boolean(x || y);
 		if(this.skill && (x || y)) this.skill.directional(x, y);
+		["up", "left", "right", "down"].forEach(key => {
+			if(keys.has(key)) this.moved = true;
+		});
 	}
 	touchv1() {
 		var {touch, touch2} = this;
 		if(touch && touch.end) touch = false;
 		if(touch2 && touch2.end) touch2 = false;
-		if(!touch) touches.forEach(obj => {
+		if(!touch && !this.moved) touches.forEach(obj => {
 			if(obj != touch2 && !obj.end && Date.now() - game.tick * 5 > obj.start) {
 				touch = obj;
 			}
 		});
-		if(!touch2) touches.forEach(obj => {
+		if(!touch2 && !this.skl) touches.forEach(obj => {
 			if(obj != touch && !obj.end && Date.now() - game.tick * 5 > obj.start) {
 				touch2 = obj;
 			}
 		});
-		if(touch) {
+		if(touch && !this.moved) {
 			this.moveTo(touch);
 			this.touch = touch;
 			touch.used = true;
 		}
-		if(touch2) {
+		if(touch2 && !this.skl) {
 			if(this.skill) this.skill.directional(touch2.x - this.mx, touch2.y - this.my);
 			this.touch2 = touch2;
 			touch2.used = true;
@@ -66,17 +68,17 @@ class Player extends Entity{
 		var {touch, touch2} = this;
 		if(touch && touch.end) touch = false;
 		if(touch2 && touch2.end) touch2 = false;
-		if(!touch) touches.forEach(obj => {
+		if(!touch && !this.moved) touches.forEach(obj => {
 			if(obj.sx < innerWidth/2 && obj != touch2 && !obj.end && Date.now() - game.tick * 5 > obj.start) {
 				touch = obj;
 			}
 		});
-		if(!touch2) touches.forEach(obj => {
+		if(!touch2 && !this.skl) touches.forEach(obj => {
 			if(obj.sx > innerWidth/2 && obj != touch && !obj.end && Date.now() - game.tick * 5 > obj.start) {
 				touch2 = obj;
 			}
 		});
-		if(touch) {
+		if(touch && !this.moved) {
 			this.move(radian(touch.x - touch.sx, touch.y - touch.sy));
 			this.touch = touch;
 			drawShape({
@@ -93,7 +95,7 @@ class Player extends Entity{
 			ctx.lineTo(touch.x, touch.y);
 			ctx.stroke();
 		}
-		if(touch2) {
+		if(touch2 && !this.skl) {
 			this.touch2 = touch2;
 			if(this.skill) this.skill.directional(touch2.x - touch2.sx, touch2.y - touch2.sy);
 			else return;
@@ -115,17 +117,17 @@ class Player extends Entity{
 	touchv3() {
 		var {touch, touch2} = this;
 		if(touch && touch.end) touch = false;
-		if(!touch) touches.forEach(obj => {
+		if(!touch && !this.moved) touches.forEach(obj => {
 			if(obj.sx < innerWidth/2 && obj != touch2 && !obj.end && Date.now() - game.tick * 5 > obj.start) {
 				touch = obj;
 			}
 		});
-		if(!touch2) touches.forEach(obj => {
+		if(!touch2 && !this.skl) touches.forEach(obj => {
 			if(obj.sx > innerWidth/2 && obj != touch && !obj.end && Date.now() - game.tick * 5 > obj.start) {
 				touch2 = obj;
 			}
 		});
-		if(touch) {
+		if(touch && !this.moved) {
 			this.move(radian(touch.x - touch.sx, touch.y - touch.sy));
 			this.touch = touch;
 			drawShape({
@@ -142,7 +144,7 @@ class Player extends Entity{
 			ctx.lineTo(touch.x, touch.y);
 			ctx.stroke();
 		}
-		if(touch2) {
+		if(touch2 && !this.skl) {
 			if(!touch2.end) {
 				this.touch2 = touch2;
 				return;
@@ -164,6 +166,19 @@ class Player extends Entity{
 			ctx.stroke();
 		}
 	}
+	die() {
+		if(game.level > 0 && game.lives > 0 && !hardcore) {
+			--game.lives;
+			this.hp = this.maxHp;
+			this.spawn();
+		}
+	}
+	static summon() {
+		player = new Player().spawn();
+		player.skill = new Player.weapon(player);
+		return player;
+	}
+	static weapon = Gun;
 	/**@type {Skill}*/
 	skill;
 	get rotation() {return radian(this.velocity)}

@@ -9,11 +9,12 @@ class levelReadable{
 	}
 	/**@param {number} phase*/
 	setPhase(phase) {this.phase = phase; this.paused = false}
+	get currentPhase() {return this.phases[this.phase]}
 	next() {this.phase++}
 	run() {
 		if(this.phase == -1 || this.paused) return;
-		if(this.phase in this.phases)
-			this.phases[this.phase].run(this)
+		if(this.currentPhase)
+			this.currentPhase.run(this);
 		if(typeof this.script == "function")
 			this.script(this);
 	}
@@ -27,6 +28,7 @@ class levelPhase{
 		this.parts = parts;
 		this.part = 0;
 	}
+	get currentPart() {return this.parts[this.part]}
 	resetSummons() {
 		this.parts.forEach(part => part.resetSummons());
 	}
@@ -34,14 +36,14 @@ class levelPhase{
 		this.part = 0;
 		this.parts.forEach(part => part.reset());
 	}
-	next() {this.part++}
+	next() {++this.part}
 	/**@param {number} part*/
 	setPart(part) {this.part = part; this.paused = false}
 	/**@param {levelReadable} level*/
 	run(level) {
 		if(this.part == -1 || this.paused) return;
-		if(this.part in this.parts)
-			this.parts[this.part].run(this, level);
+		if(this.currentPart) this.currentPart.run(this, level);
+		else level.next();
 		if(typeof this.script == "function")
 			this.script(this, level);
 	}
@@ -55,9 +57,10 @@ class levelPart{
 	 * 		continued?: boolean
 	 * 		auto?: false
 	 * 		onFinished?(part: levelPart, phase: levelPhase, level: levelReadable): void
+	 * 		then: "nextPart" | "nextPhase"
 	 *	}[]
-	 * 	summons?: {enemy: typeof Enemy, amount: number}[]
-	 * 	script?: (part: levelPart, phase: levelPhase, level: levelReadable): void
+	 * 	summons?: {what: typeof Entity, amount: number, params?:any[]}[]
+	 * 	script?: (part: levelPart, phase: levelPhase, level: levelReadable): boolean
 	 *  partPause?: true
 	 * 	phasePause?: true
 	 * 	levelPause?: true
@@ -67,7 +70,10 @@ class levelPart{
 	 * 	startBgm?: string
 	 * 	endBgm?: string
 	 * 	setBackground?: string,
-	 * 	saveData: {}
+	 * 	saveData?: {}
+	 * 	setEvent?: {}
+	 * 	waitUntilClear?: true
+	 * 	levelComplete?: true
 	}} options*/
 	constructor(options) {
 		var {
@@ -84,7 +90,10 @@ class levelPart{
 			mainMenu,
 			endBgm,
 			setBackground,
-			saveData
+			saveData,
+			setEvent,
+			waitUntilClear,
+			levelComplete
 		} = options;
 		this.wait = wait;
 		this.dialogue = dialogue;
@@ -99,7 +108,10 @@ class levelPart{
 		this.startBgm = startBgm;
 		this.endBgm = endBgm;
 		this.saveData = saveData;
+		this.setEvent = setEvent;
 		this.setBackground = setBackground;
+		this.waitUntilClear = waitUntilClear;
+		this.levelComplete = levelComplete;
 		this.time = 0;
 	}
 	resetSummons() {
@@ -115,21 +127,37 @@ class levelPart{
 		var canEnd = true;
 		if(this.wait < this.time) {
 			if(this.summons) this.summons.forEach(value => {
-				var {enemy, amount=1} = value;
+				var {what, amount=1, params=[]} = value;
 				if(!("summoned" in value)) value.summoned = 0;
-				if(amount > value.summoned && Enemy.summon(new enemy)) ++value.summoned;
+				if(amount > value.summoned && what.summon(new what, ...params)) ++value.summoned;
 				if(amount > value.summoned) canEnd = false;
 			});
 			if(this.dialogue) this.dialogue.forEach(value => {
-				var {text, color, continued, auto, onFinished} = value;
+				var {text, color, continued, auto, onFinished, then} = value;
 				var a = dialogue(text, color, {continued, auto});
-				if(onFinished) a.then(() => onFinished(part, phase, level));
+				if(onFinished || then) a.then(() => {
+					if(onFinished) onFinished(part, phase, level)
+					if(then) switch(then) {
+						case "nextPart":
+							phase.next();
+						break;
+						case "nextPhase":
+							level.next();
+						break;
+						case "nextLevel":
+							++game.level;
+							levelMenu.selected = game.level;
+							levelMenu.create();
+						break;
+					}
+				});
 			});
 			if(Music.has(this.startBgm)) Music.get(this.startBgm).play();
 			if(Music.has(this.endBgm)) Music.get(this.endBgm).stop();
 			if(this.setBackground) backgroundName = this.setBackground;
-			if(typeof this.script == "function")
-				this.script(this, phase, level);
+			if(typeof this.script == "function") {
+				if(this.script(this, phase, level)) canEnd = false;
+			}
 			if(canEnd) {
 				if(this.saveData) {
 					let keys = Object.keys(this.saveData);
@@ -138,12 +166,21 @@ class levelPart{
 						data[key] = val;
 					}
 				}
+				if(this.setEvent) {
+					let keys = Object.keys(this.setEvent);
+					for(let key of keys) {
+						let val = this.setEvent[key];
+						game.event[key] = val;
+					}
+				}
 				if(this.nextPart) phase.next();
 				if(this.nextPhase) level.next();
 				if(this.partPause) this.time = -1;
 				if(this.phasePause) phase.paused = true;
 				if(this.levelPause) level.paused = true;
+				if(this.levelComplete && data.level <= game.level) data.level = game.level + 1;
 				if(this.mainMenu) mainMenu.setup();
+				if(this.waitUntilClear && !enemies.size && !particles.size) phase.next();
 			}
 		}
 		if(this.time != -1) this.time += game.tick;

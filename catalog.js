@@ -110,12 +110,18 @@ var catalog = {
 		ctx.moveTo(game.x, 0);
 		ctx.lineTo(game.x, game.y2);
 		ctx.stroke();
-		if(keys.get("ArrowDown") == 1 || keys.get("ArrowLeft") == 1) this.selected++;
-		if(keys.get("ArrowUp") == 1 || keys.get("ArrowRight") == 1) this.selected--;
-		if(keys.has("ArrowDown")) keys.set("ArrowDown", 2);
-		if(keys.has("ArrowUp")) keys.set("ArrowUp", 2);
-		if(keys.has("ArrowLeft")) keys.set("ArrowLeft", 2);
-		if(keys.has("ArrowRight")) keys.set("ArrowRight", 2);
+		var any = (...list) => {
+			var any = false;
+			list.forEach(v => {
+				if(!any && (keys.get(v) == 1 || keys.get(v) == 3)) any = true;
+			});
+			return any;
+		}
+		if(any("down", "down2", "right", "right2")) catalog.selected++;
+		if(any("up", "up2", "left", "left2")) catalog.selected--;
+		["up", "up2", "left", "left2", "right", "right2", "down", "down2"].forEach(key => {
+			if(keys.has(key)) keys.set(key, 2);
+		});
 		this.selected = (this.selected + this.list.length + 1) % (this.list.length + 1);
 		var touch;
 		touches.forEach(obj => {
@@ -144,16 +150,12 @@ var catalog = {
 		ctx.fillStyle = "white";
 		var y = game.y2 - s;
 		var end;
-		if(touch) {
-			if(touch.x < s && touch.y > y && touch.y < y + s) {
-				end = true;
-			}
-		}
+		if(touch && touch.x < s && touch.y > y && touch.y < y + s) end = true;
 		if(touch && !hit) this.selected = this.list.length;
 		ctx.fillRect(0, y, s, s);
 		drawShape({x: 0, y: y, size: s, shape: "arrow", color: "red", rotation: PI});
-		if(keys.get("Backspace") == 1) {
-			keys.set("Backspace", 2);
+		if(keys.get("back") == 1) {
+			keys.set("back", 2);
 			end = true;
 		}
 		if(end) {

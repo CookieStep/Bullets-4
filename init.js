@@ -15,6 +15,7 @@ var {
 /**@param {number} max @param {number} min*/
 var random = (max=1, min=0) =>
 	Math.random() * (max - min) + min;
+var flip = (num=1) => round(random()) * num;
 /**
  * @param {number | {x: number, y: number}} x Either and {x, y} or a number
  * @param {number} y The y value, if not inside x
@@ -34,17 +35,23 @@ var enemies2 = new Collection;
 var exp = new Collection;
 /**@type {Collection<Particle>}*/
 var particles = new Collection;
+/**@type {Collection<Npc>}*/
+var npcs = new Collection;
 var hardcore;
 //921600 => 40
 var game = {
 	scale: 40,
 	level: 0,
 	fps: 40,
-	lives: 3,
+	lives: 0,
+	reset() {this.lives = 3; this.event = {}},
 	x: 0,
 	y: 0,
+	event: {},
 	x2: innerWidth,
 	y2: innerHeight,
+	get m() {return min(this.x, this.y)},
+	get m2() {return min(this.x2, this.y2)},
 	get tick() {
 		return 1000/this.fps;
 	}

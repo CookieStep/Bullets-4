@@ -24,7 +24,22 @@ function saveData() {
 }
 var baseData = {
 	catalog: new Set,
-	firstRun: true
+	firstRun: true,
+	touchStyle: 2,
+	level: 1,
+	keyBind: {
+		Backspace: "back",
+		KeyS: "down",
+		ArrowDown: "down2",
+		Enter: "enter",
+		KeyA: "left",
+		ArrowLeft: "left2",
+		KeyD: "right",
+		ArrowRight: "right2",
+		Space: "select",
+		KeyW: "up",
+		ArrowUp: "up2"
+	}
 }
 /**@type {Map<string, (value) => void>}*/
 var dataParser = new Map;
@@ -36,4 +51,4 @@ dataParser.set("_catalog", value => {
 });
 dataStringfy.set("catalog", value => {
 	if(value) data._catalog = value.toArray();
-})
+});

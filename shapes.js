@@ -13,7 +13,7 @@ class Shape extends Path2D{
 	}
 	/**@type {Map<string, Shape>}*/
 	var shapes = new Map;
-		//Bases
+		//Bases {}
 	shapes.set("square", createShape(path => {
 		path.rect(0, 0, 1, 1);
 	}));
@@ -79,6 +79,10 @@ class Shape extends Path2D{
 	}));
 		//Bases
 		//Icons
+	shapes.set("tophat", createShape(path => {
+		path.rect(-0.2, -0.2, 1.4, 0.2);
+		path.rect(0, -0.8, 1, 0.6);
+	}));
 	shapes.set("arrow", createShape(path => {
 		path.moveTo(1/2, 1/8);
 		path.lineTo(3/4, 2/5);
@@ -198,7 +202,7 @@ class Shape extends Path2D{
 			fillAlpha=1,
 			strokeAlpha=1,
 			rotation=0,
-			undoStrokeScale
+			undoStrokeScale=1
 		} = options;
 		var hasDependencies = (
 			typeof x == "number" &&

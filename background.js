@@ -43,3 +43,33 @@ bckdrpGen.set("catalog", (width, height) => createBackground(path => {
     }
     path.stroke = "#0f0a";
 }));
+bckdrpGen.set("level-1", (width, height) => createBackground(path => {
+    var w = width/game.scale;
+    var h = height/game.scale;
+    path.scale = game.scale;
+    function circle(x, y, r) {
+        path.moveTo(x + r, y);
+        path.arc(x, y, r, 0, PI * 2);
+    }
+    circle(w/2, h/2, 5);
+    circle(w/6, h/4, 3);
+    circle(w * 5/6, h/4, 3);
+    circle(w/6, h * 3/4, 3);
+    circle(w * 5/6, h * 3/4, 3);
+    //right triangle
+    path.moveTo(0, h/4);
+    path.lineTo(w/12, h/2);
+    path.lineTo(0, h * 3/4);
+    //left triangle
+    path.moveTo(w, h/4);
+    path.lineTo(w * 11/12, h/2);
+    path.lineTo(w, h * 3/4);
+    //left center triangle
+    path.moveTo(w/2 - 5, 0);
+    path.lineTo(w/6 + 3, h/2);
+    path.lineTo(w/2 - 5, h);
+    path.moveTo(w/2 + 5, 0);
+    path.lineTo(w * 5/6 - 3, h/2);
+    path.lineTo(w/2 + 5, h);
+    path.stroke = "#f00a";
+}))

@@ -1,8 +1,10 @@
 class Enemy extends Entity{
-	spawn(sound=true) {
+	spawn(sound=true, x, y) {
 		var tries = 0, good;
 		do{
 			this.pickLocation();
+			if(typeof x == "number") this.mx = x;
+			if(typeof y == "number") this.my = y;
 			++tries;
 			good = !(player && player.alive) || Entity.distance(player, this) > game.scale * 5;
 		}while(good && tries < 10);
@@ -16,8 +18,8 @@ class Enemy extends Entity{
 	}
 	deathSFX = "Hit";
 	/**@param {Enemy} enemy*/
-	static summon(enemy) {
-		enemy = enemy.spawn();
+	static summon(enemy, x, y) {
+		enemy = enemy.spawn(true, x, y);
 		if(enemy) Particle.summon(new Spawner(enemy, enemies));
 		return enemy;
 	}
