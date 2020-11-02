@@ -8,6 +8,7 @@ function update(e) {
 	pen.clearRect(0, 0, innerWidth, innerHeight);
 	pen.drawImage(background, 0, 0);
 	pen.drawImage(foreground, 0, 0);
+	Music.forEach(bgm => bgm.resume());
 	update.run();
 	saveData();
 }

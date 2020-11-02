@@ -51,9 +51,7 @@ class Bgm{
 		this.isPlaying = true;
 	}
 	pause() {if(this.isPlaying) this.element.pause()}
-	resume() {
-		if(this.isPlaying) this.element.play();
-	}
+	resume() {if(this.isPlaying) this.element.play()}
 	stop() {
 		let {element} = this;
 		element.pause();
