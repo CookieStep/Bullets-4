@@ -22,7 +22,7 @@ var generateLevel = [
 					if(!obj.end && Date.now() - obj.start > game.tick * 5) touch = true;
 				});
 				if((!phase.move) && player && player.alive && (
-					keys.has("w") || keys.has("d") || keys.has("a") || keys.has("s") || touch
+					keys.has("up") || keys.has("down") || keys.has("left") || keys.has("right") || touch
 				)) phase.move = true;
 				if(phase.move && phase.part > 2) level.next();
 			},
