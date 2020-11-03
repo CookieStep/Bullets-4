@@ -21,7 +21,7 @@ class Hero extends Entity{
 		if(keys.has("up2")) y--;
 		this.skl = Boolean(x || y);
 		if(this.skill && (x || y)) this.skill.directional(x, y);
-		else if(this.skill && keys.get("select") == 1 || keys.get("select") == 3) this.skill.secondary();
+		else if(this.skill && (keys.get("select") == 1 || keys.get("select") == 3)) this.skill.secondary();
 		["up", "left", "right", "down"].forEach(key => {
 			if(keys.has(key)) this.moved = true;
 		});
