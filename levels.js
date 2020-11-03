@@ -47,6 +47,7 @@ var generateLevel = [
 						x: 0, y: (innerHeight - player.size)/2,
 						velocity: {x: player.size * 2, y: 0}
 					});
+					player.isMain = true;
 					SFX.get("Spawn").play();
 				},
 				startBgm: "Tutorial",
@@ -267,7 +268,7 @@ var generateLevel = [
 			new levelPart({
 				setBackground: "level-1",
 				summons: [{what: TopHat, get params() {
-					return [game.x2/4, game.y2/2]
+					return [game.x2/4, game.y2/2];
 				}}],
 				nextPart: true
 			}),
