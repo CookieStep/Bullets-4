@@ -118,6 +118,8 @@ mainMenu.setup = function() {
 	player = undefined;
 	game.level = -1;
 	enemies.clear();
+	particles.clear();
+	bullets.clear();
 	this.active = true;
 	onresize();
 	while(enemies.size < 20) Enemy.summonBulk(...catalog.getList());

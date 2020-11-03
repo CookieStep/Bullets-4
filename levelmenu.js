@@ -97,18 +97,22 @@ levelMenu.startLevel = function() {
 	game.level = levelMenu.selected;
 	reset();
 	player = undefined;
+	clearBad();
 	levelMenu.active = false;
 }
 levelMenu.create = function() {
+	game.reset();
 	enemies.clear();
 	npcs.clear();
+	particles.clear();
 	Music.forEach(bgm => bgm.stop());
 	var level = this.items[this.selected];
 	if(!level) {
 		this.stop();
 	return}
 	level.hasNew = 0;
-	if(Music.has(level.music)) Music.get(level.music).play();
+	if(Music.has(level.music))
+		Music.get(level.music).play();
 	var can = catalog.getList();
 	var has = what => {
 		let is = false;
@@ -152,7 +156,7 @@ levelMenu.items = [{
 	color: "#f55",
 	music: "Boss-1",
 	desc: ["The first battle."],
-	boss: [Boss1],
+	boss: [TheSummoner],
 	background: {
 		name: "level-1",
 		color: "#0005"

@@ -11,7 +11,10 @@ class Entity{
 	friction = 0.9;
 	x = 0; y = 0;
 	id = -1n;
+	/**Play sound when hit a wall*/
 	wallSFX = true;
+	/**Play sound when colides with someone*/
+	contactSFX = false;
 	color = "white";
 	shape = "square";
 	color2 = "black";
@@ -55,6 +58,19 @@ class Entity{
 		} = game;
 		this.x = random(x2 - this.size, x);
 		this.y = random(y2 - this.size, y);
+	}
+	get prediction() {
+		var num = 0;
+		for(let i = 0; i < 25; i++) {
+			num += 1 * pow(this.friction, i);
+		}
+		return num;
+	}
+	get player() {
+		var arr = heros.asArray();
+		arr.push(player);
+		arr.sort((enemy, enemy2) => Entity.distance(this, enemy) - Entity.distance(this, enemy2));
+		return arr[0];
 	}
 	spawn() {
 		this.pickLocation();
@@ -119,8 +135,16 @@ class Entity{
 		else if("x" in x) this.move(radian(x.x - this.mx, x.y - this.my));
 		return Entity.distance(this, x);
 	}
+	runFrom(x, y) {
+		if(typeof x == "number") {
+			this.move(radian(-x + this.mx, -y + this.my));
+			return Entity.distance(this, {x, y});
+		}else if("mx" in x) this.move(radian(-x.mx + this.mx, -x.my + this.my));
+		else if("x" in x) this.move(radian(-x.x + this.mx, -x.y + this.my));
+		return Entity.distance(this, x);
+	}
 	prepare() {}
-	draw() {
+	draw(fx, fy, fs) {
 		var {
 			x, y,
 			size,
@@ -137,9 +161,12 @@ class Entity{
 			strokeAlpha2,
 			undoStrokeScale2
 		} = this;
+		var test = (what, type, fallback) => typeof what == type? what: fallback;
+		x = test(fx, "number", x);
+		y = test(fy, "number", y);
+		size = test(fs, "number", size);
 		drawShape({shape, x, y, size, color, rotation, strokeAlpha, fillAlpha, undoStrokeScale});
 		if(shape2) {
-			var test = (what, type, fallback) => typeof what == type? what: fallback;
 			drawShape({
 				shape: shape2,
 				x, y, size,
@@ -204,15 +231,14 @@ class Entity{
 		let s = (a.size + b.size)/2,
 			x = a.mx - b.mx,
 			y = a.my - b.my;
-		x /= 10;
-		y /= 10;
+		var i = 10;
 		if(x < s) {
-			a.velocity.x = (x * b.knockback) * a.knockRes;
-			b.velocity.x = (-x * a.knockback) * b.knockRes;
+			a.velocity.x = (x * b.knockback/i) * a.knockRes;
+			b.velocity.x = (-x * a.knockback/i) * b.knockRes;
 		}
 		if(y < s) {
-			a.velocity.y = (y * b.knockback) * a.knockRes;
-			b.velocity.y = (-y * a.knockback) * b.knockRes;
+			a.velocity.y = (y * b.knockback/i) * a.knockRes;
+			b.velocity.y = (-y * a.knockback/i) * b.knockRes;
 		}
 	}
 }

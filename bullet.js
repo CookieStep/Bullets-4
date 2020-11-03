@@ -2,7 +2,7 @@ class Bullet extends Entity{
 	/**@param {Entity} parent @param {number} rad*/
 	scale = 1/4;
 	spd = 0.075;
-	knockback = 5;
+	knockback = 2;
 	constructor(parent, rad) {
 		super(parent);
 		this.color = parent.color;

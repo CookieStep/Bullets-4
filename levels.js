@@ -4,6 +4,15 @@ function runLevel(number) {
 }
 /**@type {levelReadable[]}*/
 var levels = [];
+function clearBad() {
+	enemies.clear();
+	exp.clear();
+	particles.clear();
+	bullets.clear();
+	heros.clear();
+	if(game.level < 1) return;
+	Player.summon(new Player);
+}
 var generateLevel = [
 	() => new levelReadable(
 		new levelPhase(
@@ -250,16 +259,14 @@ var generateLevel = [
 		(level) => {
 			if(player && !player.alive) {
 				level.currentPhase.reset();
-				enemies.clear();
-				exp.clear();
-				player = Player.summon(new Player);
+				clearBad();
 				game.reset();
 			}
 		},
 		new levelPhase(
 			new levelPart({
 				setBackground: "level-1",
-				summons: [{what: Player}, {what: TopHat, get params() {
+				summons: [{what: TopHat, get params() {
 					return [game.x2/4, game.y2/2]
 				}}],
 				nextPart: true
@@ -457,15 +464,13 @@ var generateLevel = [
 		(level) => {
 			if(player && !player.alive) {
 				level.currentPhase.reset();
-				enemies.clear();
-				exp.clear();
-				player = Player.summon(new Player);
+				clearBad();
 				game.reset();
 			}
 		},
 		new levelPhase(
 			new levelPart({
-				summons: [{what: Player}, {what: Boss1}],
+				summons: [{what: TheSummoner}],
 				waitUntilClear: true,
 				startBgm: "Boss-1"
 			}),

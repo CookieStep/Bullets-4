@@ -8,6 +8,7 @@ class Exp extends Entity{
 	spd = 0.075;
 	deathSFX = "Xp";
 	tick() {
+		var {player} = this;
 		if(player && player.alive && Entity.distance(this, player) < 5 * game.scale)
 			this.moveTo(player);
 		this.r += this.rspd;

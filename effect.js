@@ -72,8 +72,10 @@ class Spawner extends Particle{
 		this.mx = parent.mx;
 		this.my = parent.my;
 		if(this.time-- == 0) {
-			var id = this.collection.push(parent);
-			parent.id = id;
+			if(this.collection.push) {
+				var id = this.collection.push(parent);
+				parent.id = id;
+			}else this.collection(parent);
 		}
 		this.color = `hsl(${this.hue}, 100%, ${50 + abs(25 - (this.time % 50)) * 2}%)`;
 	}

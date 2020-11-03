@@ -5,6 +5,7 @@ class Skill{
 	/**Arrow Keys
 	 * @param {number} x @param {number} y*/
 	directional(x, y) {}
+	secondary() {}
 }
 class Gun extends Skill{
 	/**Arrow Keys
@@ -21,16 +22,33 @@ class Gun extends Skill{
 		bullets.push(bullet);
 		SFX.get("Shoot").play();
 	}
+	secondary() {
+		if(this.sk < this.rsk) return;
+		if(this.lastShot) return;
+		this.sk -= this.rsk * 4;
+		this.lastShot = 40;
+		for(let i = 0; i < 8; i++) {
+			let rad = PI/4 * i;
+			let bullet = new Bullet(this.user, rad).spawn();
+			let x = cos(rad);
+			let y = sin(rad);
+			bullet.x += player.size * x/2;
+			bullet.y += player.size * y/2;
+			SFX.get("Shoot").play();
+			bullets.push(bullet);
+		}
+	}
 	update() {
 		if(this.lastShot) this.lastShot--;
 		var a = 20 - floor(this.sk/this.rsk);
 		if(a > 0) this.sk += a/320;
 	}
 	draw() {
+		var a = floor(this.sk/this.rsk);
+		if(a <= 0) return;
 		var {user} = this;
 		var m = user.size * 1.5;
 		var s = user.size/3;
-		var a = floor(this.sk/this.rsk);
 		var ri = PI * 2 / a;
 		var x = user.mx - s/2;
 		var y = user.my - s/2;

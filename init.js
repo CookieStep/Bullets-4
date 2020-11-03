@@ -25,6 +25,8 @@ var point = (radian, distance=1) => ({x: cos(radian) * distance, y: sin(radian) 
 var constrain = (value, max=1, min=0) => round((value - min)/(max - min)) * (max - min) + min;
 /**@type {Player}*/
 var player;
+/**@type {Collection<Player>}*/
+var heros = new Collection;
 /**@type {Collection<Bullets>}*/
 var bullets = new Collection;
 /**@type {Collection<Enemy>}*/
@@ -44,7 +46,8 @@ var game = {
 	level: 0,
 	fps: 40,
 	lives: 0,
-	reset() {this.lives = 3; this.event = {}},
+	boss: [],
+	reset() {this.lives = 3; this.event = {}; this.boss = []},
 	x: 0,
 	y: 0,
 	event: {},

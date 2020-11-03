@@ -2,27 +2,47 @@ function main(focus=true) {
 	runLevel(game.level);
 	if(game.level > 0) {
 		if(player && !hardcore) {
-			let x = (game.x2 - game.scale * game.lives)/2;
-			for(let i = 0; i < game.lives; i++) {
+			let x = (game.x2 - game.scale * player.lives)/2;
+			for(let i = 0; i < player.lives; i++) {
 				drawShape({
 					shape: player.shape, color: player.color,
 					size: game.scale, x: x + i * game.scale, y: 0, fillAlpha: 0
-				})
+				});
 			}
 		}
+	}
+	/**@type {Boss}*/
+	let boss = game.boss[0];
+	if(boss) {
+		let x = game.x2/4;
+		let y = game.y2 - game.scale * 3/2;
+		let s = game.scale;
+		let width = (game.x2 - game.scale)/2;
+		ctx.lineWidth = s/10;
+		ctx.fillStyle = boss.color2;
+		ctx.strokeStyle = boss.color;
+		ctx.beginPath();
+		ctx.fillRect(x + game.scale/2, y, width * (boss.hp/boss.maxHp), s);
+		ctx.strokeRect(x + game.scale/2, y, width, s);
+		boss.draw(x, y, s);
 	}
 	if(player && player.alive) player.update();
 	enemies.remove(enemy => !enemy.alive);
 	exp.remove(xp => !xp.alive);
 	bullets.remove(bullet => !bullet.alive);
+	heros.remove(hero => !hero.alive);
 	npcs.remove(npc => !npc.alive);
 	particles.remove(particle => !particle.alive);
 	exp.forEach(xp => {
-		xp.update();
-		if(player && player.alive && Entity.isTouching(player, xp)) {
+		var add = () => {
 			if(player.skill) ++player.skill.sk;
-			xp.attack(player);
+			heros.forEach(hero => {
+				if(hero.skill) ++hero.skill.sk;
+			});
 		}
+		xp.update();
+		if(player && player.alive && Entity.isTouching(player, xp)) {xp.attack(player); add()}
+		heros.forEach(hero => {if(xp.alive && Entity.isTouching(hero, xp)) {xp.attack(hero); add()}});
 	});
 	enemies.forEach(enemy => {
 		enemy.update(focus);
@@ -31,18 +51,26 @@ function main(focus=true) {
 			player.attack(enemy);
 			enemy.attack(player);
 		}
+		heros.forEach(hero => {
+			if(enemy.alive && Entity.isTouching(enemy, hero)) {
+				Entity.collide(hero, enemy, focus);
+				hero.attack(enemy);
+				enemy.attack(hero);
+			}
+		});
 		bullets.forEach(bullet => {
 			if(enemy.alive && Entity.isTouching(enemy, bullet)) {
 				Entity.collide(bullet, enemy, focus);
 				bullet.attack(enemy);
 				enemy.attack(bullet);
 			}
-		})
+		});
 	});
 	bullets.forEach(bullet => {bullet.update(focus)});
+	heros.forEach(hero => {hero.update()});
 	npcs.forEach(npc => {
 		npc.update();
-		if(Entity.isTouching(npc, player))
+		if(player && player.alive && Entity.isTouching(npc, player))
 			Entity.collide(npc, player, focus);
 		enemies.forEach(enemy => {
 			if(Entity.isTouching(enemy, npc))
@@ -105,6 +133,7 @@ function main(focus=true) {
 		}
 	}
 	particles.forEach(particle => {particle.draw()});
+	heros.forEach(hero => {hero.draw()});
 	if(player && player.alive) player.draw();
 	enemies.forEach(enemy => enemy.draw());
 	npcs.forEach(npc => {npc.draw()});

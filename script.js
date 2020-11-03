@@ -9,8 +9,8 @@ function update(e) {
 	pen.drawImage(background, 0, 0);
 	pen.drawImage(foreground, 0, 0);
 	Music.forEach(bgm => bgm.resume());
-	update.run();
 	saveData();
+	update.run();
 }
 function reset() {
 	onresize();
@@ -57,11 +57,13 @@ onresize = () => {
 }
 onblur = () => {
 	cancelAnimationFrame(update.request);
+	delete update.request;
+	keys.clear();
 	Music.forEach(bgm => bgm.pause());
 }
 onfocus = () => {
 	Music.forEach(bgm => bgm.resume());
-	update.run();
+	if(!update.request) update.run();
 }
 var keys = new Map;
 onkeydown = e => {
