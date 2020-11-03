@@ -94,6 +94,7 @@ var generateLevel = [
 			(phase) => {
 				if(player && !player.alive) {
 					player = new Player().spawn();
+					player.isMain = true;
 					if(hardcore)
 						phase.reset()
 				}
@@ -212,6 +213,7 @@ var generateLevel = [
 			(phase) => {
 				if(player && !player.alive) {
 					player = new Player().spawn();
+					player.isMain = true;
 					player.skill = new Gun(player);
 					if(hardcore)
 						phase.reset()

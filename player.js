@@ -46,18 +46,18 @@ class Hero extends Entity{
 		this.mx = innerWidth/2;
 		this.my = innerHeight/2;
 		enemies.forEach(enemy => {
-			if(Entity.distance(this, enemy) < 7.5 * game.scale) {
+			if(Entity.distance(this, enemy) < 15 * game.scale) {
 				var radian = Entity.radianTo(this, enemy);
-				enemy.mx = this.mx + cos(radian) * game.scale * 7.5;
-				enemy.my = this.my + sin(radian) * game.scale * 7.5;
+				enemy.mx = this.mx + cos(radian) * game.scale * 15;
+				enemy.my = this.my + sin(radian) * game.scale * 15;
 			}
 		});
 		SFX.get("Spawn").play();
-		Particle.summon(new Shockwave(this, 7.5 * game.scale));
+		Particle.summon(new Shockwave(this, 15 * game.scale));
 	}
 	die() {
 		if(game.level > 0 && this.lives > 0 && !hardcore) {
-			--player.lives;
+			--this.lives;
 			this.hp = this.maxHp;
 			this.spawn();
 		}
