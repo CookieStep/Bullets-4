@@ -35,7 +35,7 @@ function main(focus=true) {
 	particles.remove(particle => !particle.alive);
 	exp.forEach(xp => {
 		var add = () => {
-			if(player.skill) ++player.skill.sk;
+			if(player && player.alive && player.skill) ++player.skill.sk;
 			heros.forEach(hero => {
 				if(hero.skill) ++hero.skill.sk;
 			});

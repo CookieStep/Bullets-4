@@ -4,20 +4,37 @@ var catalog = {
 		data.catalog.forEach(value => list.push(new (this.converter.get(value))));
 		return list;
 	},
+	getList2() {
+		var list = [];
+		var id = 0n;
+		data.party.forEach(value => {
+			var what = this.converter.get(value);
+			var hero = new what;
+			hero.skill = new what.weapon(hero);
+			hero.id = id++;
+			list.push(hero);
+		});
+		return list;
+	},
 	/**@type {Map<string, typeof Enemy>}*/
 	converter: new Map([
 		["Chill", Chill],
 		["Go-go", GoGo],
 		["Underbox", Underbox],
-		["Edge lord", Corner]
+		["Edge lord", Corner],
+		["Shooter", Player],
+		["Summoner", Summoner]
 	]),
 	setup() {
 		this.active = true;
 		onresize();
+		this.list = this.getList2();
+		this.list.forEach(hero => hero.spawn());
+		heros = new Collection(...this.list);
 		this.list = this.getList();
 		this.list.forEach(enemy => enemy.spawn());
 		enemies = new Collection(...this.list);
-		this.list = this.getList();
+		this.list = this.getList2().concat(this.getList());
 		this.list.forEach(enemy => enemy.prepare());
 		this.selected = this.list.length;
 		this.mx = 0;
@@ -32,8 +49,9 @@ var catalog = {
 		ctx.fillRect(0, 0, game.x2, game.y2);
 		if(this.selected != this.list.length) {
 			/**@type {Enemy}*/
-			var enemy = enemies.get(BigInt(this.selected));
-			var {mx, my} = enemy;
+			var entity = heros.get(BigInt(this.selected));
+			if(!entity) entity = enemies.get(BigInt(this.selected - heros.size));
+			var {mx, my} = entity;
 			mx -= (game.x2)/2;
 			my -= (game.y2)/2;
 		}else{
@@ -44,7 +62,7 @@ var catalog = {
 			let a = this.mx - mx,
 				b = this.my - my;
 			let c = max(abs(a), abs(b));
-			c /= game.scale/2;
+			c /= game.scale/4;
 			if(c) {
 				if(c < 1) {
 					this.mx = mx;
@@ -58,6 +76,25 @@ var catalog = {
 		ctx.translate(-this.mx, -this.my);
 		bctx.translate(-this.mx, -this.my);
 		main();
+		var id = 0;
+		heros.forEach(hero => {
+			if(!hero.alive) {
+				hero.hp = hero.maxHp;
+				hero.spawn();
+			}else if(touch) {
+				if(touch.x > hero.x && touch.x < hero.x + hero.size && touch.y > hero.y && touch.y < hero.y + hero.size) selected = id;
+			}
+			++id;
+		});
+		enemies.forEach(enemy => {
+			if(!enemy.alive) {
+				enemy.hp = enemy.maxHp;
+				enemy.spawn();
+			}else if(touch) {
+				if(touch.x > enemy.x && touch.x < enemy.x + enemy.size && touch.y > enemy.y && touch.y < enemy.y + enemy.size) selected = id;
+			}
+			++id;
+		});
 		ctx.fillStyle = "#000";
 		ctx.fillRect(0, 0, game.x, game.y2);
 		ctx.lineWidth = 5;
@@ -67,10 +104,10 @@ var catalog = {
 		bctx.translate(this.mx, this.my);
 		ctx.fillStyle = backgroundColor;
 		ctx.fillRect(0, 0, game.x, game.y2);
-		if(enemy) {
-			var text = enemy.name;
-			if(enemy.ancestor)
-				text += ` (evolves from ${enemy.ancestor})`;
+		if(entity) {
+			var text = entity.name;
+			if(entity.ancestor)
+				text += ` (evolves from ${entity.ancestor})`;
 			ctx.font = `${game.scale/2}px Sans`
 			var width = ctx.measureText(text).width;
 			var h = game.scale * 3/4;
@@ -81,15 +118,15 @@ var catalog = {
 			ctx.lineTo(game.x + width + game.scale, 0);
 			ctx.lineTo(game.x, 0);
 			ctx.closePath();
-			ctx.fillStyle = enemy.color;
+			ctx.fillStyle = entity.color;
 			ctx.fill();
 			ctx.stroke();
-			ctx.fillStyle = enemy.color2 || "black";
+			ctx.fillStyle = entity.color2 || "black";
 			ctx.fillText(text, game.x + game.scale/4, game.scale/2);
 			{
 				width = 0;
 				let amo = 0;
-				enemy.description.forEach(value => {
+				entity.description.forEach(value => {
 					var s = ctx.measureText(value).width;
 					if(s > width) width = s; ++amo;
 				});
@@ -99,7 +136,7 @@ var catalog = {
 				ctx.fillRect(x - game.scale/4, 0, width + game.scale/4, amo * h + h/4);
 				ctx.strokeRect(x - game.scale/4, 0, width + game.scale/4, amo * h + h/4);
 				ctx.fillStyle = "black";
-				enemy.description.forEach((value, i) => {
+				entity.description.forEach((value, i) => {
 					i = +i;
 					ctx.fillText(value, x, h * (i + 1));
 				});
@@ -159,6 +196,9 @@ var catalog = {
 			end = true;
 		}
 		if(end) {
+			heros.clear();
+			particles.clear();
+			exp.clear();
 			this.active = false;
 			Music.get("Catalog").stop();
 			mainMenu.setup();

@@ -12,7 +12,6 @@ class Bullet extends Entity{
 		var {parent} = this;
 		this.mx = parent.mx;
 		this.my = parent.my;
-		this.velocity = point(this.rad, this.spd * this.size * 10);
 	}
 	get fillAlpha() {
 		return this.parent.fillAlpha;
@@ -24,8 +23,7 @@ class Bullet extends Entity{
 		this.time -= attacker.atk * 25;
 	}
 	tick() {
-		this.time--;
-		if(this.time == 100) this.move(this.rad);
+		if(this.time-- == 100) this.move(this.rad);
 		else this.move(radian(this.velocity));
 	}
 	shape = "square3";

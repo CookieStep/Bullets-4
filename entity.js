@@ -148,6 +148,7 @@ class Entity{
 		var {
 			x, y,
 			size,
+			size2,
 			color,
 			shape,
 			rotation,
@@ -164,12 +165,15 @@ class Entity{
 		var test = (what, type, fallback) => typeof what == type? what: fallback;
 		x = test(fx, "number", x);
 		y = test(fy, "number", y);
+		let m = size;
 		size = test(fs, "number", size);
+		m = size/m;
 		drawShape({shape, x, y, size, color, rotation, strokeAlpha, fillAlpha, undoStrokeScale});
 		if(shape2) {
+			if(size2) size = size2 * m;
 			drawShape({
 				shape: shape2,
-				x, y, size,
+				x: this.mx - size/2, y: this.my - size/2, size,
 				color: test(color2, "string", color),
 				rotation: test(rotation2, "number", rotation),
 				fillAlpha: test(fillAlpha2, "number", fillAlpha),

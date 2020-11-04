@@ -20,6 +20,7 @@ class Boss extends Enemy{
 		if(SFX.has(this.deathSFX))
 			SFX.get(this.deathSFX).play();
 		Exp.summon(this);
+		data.party.add(this.name);
 		game.boss.splice(game.boss.indexOf(this));
 	}
 	static summon(boss, x, y) {
@@ -39,6 +40,7 @@ class Boss extends Enemy{
 	spd = 0.0075;
 }
 class TheSummoner extends Boss{
+	name = "Summoner";
 	phases = [
 		() => (this.summons = 0, this.shape2 = "arrow", this.next()),
 		() => this.goTo(game.x2/2, game.y2/2, game.scale/5),

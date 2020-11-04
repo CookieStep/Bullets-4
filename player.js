@@ -9,6 +9,7 @@ class Hero extends Entity{
 			}
 		}else this.ai();
 	}
+	prepare() {this.skill.sk = 0}
 	keys() {
 		//wasd
 		this.velocity.x += this.size * this.spd * (keys.has("right") - keys.has("left"));
@@ -27,22 +28,30 @@ class Hero extends Entity{
 		});
 	}
 	ai() {}
-	static summon() {
-		var Splayer = new Player().spawn();
-		Splayer.skill = new Player.weapon(Splayer);
+	static summon(what) {
+		var Splayer = new what().spawn();
+		Splayer.skill = new what.weapon(Splayer);
 		Splayer.isMain = true;
 		player = new Spawner(Splayer, () => player = Splayer);
 		return Splayer;
 	}
 	lives = 3;
-	static summonBulk(...arrHeros) {arrHeros.forEach(hero => {
-		var nhero = new Player().spawn();
-		nhero.skill = new hero.weapon(nhero);
-		Spawner.summon(new Spawner(nhero, heros));
-	})}
+	static summonBulk(...arrHeros) {
+		var i = 0;
+		var r = PI * 2/arrHeros.length;
+		var s = game.scale * 2;
+		arrHeros.forEach(hero => {
+			var nhero = new hero().spawn();
+			nhero.x += cos(i * r) * s;
+			nhero.x += sin(i++ * r) * s;
+			nhero.skill = new hero.weapon(nhero);
+			Spawner.summon(new Spawner(nhero, heros));
+		});
+	}
 	deathSFX = "Death";
 	/**Moves the player to the middle of the screen*/
 	pickLocation() {
+		data.party.add(this.name);
 		this.mx = innerWidth/2;
 		this.my = innerHeight/2;
 		enemies.forEach(enemy => {
@@ -53,6 +62,11 @@ class Hero extends Entity{
 			}
 		});
 		SFX.get("Spawn").play();
+		var i = Number(this.id);
+		var r = PI;
+		var s = game.scale * 2;
+		this.x += cos(i * r) * s;
+		this.y += sin(i * r) * s;
 		Particle.summon(new Shockwave(this, 15 * game.scale));
 	}
 	die() {
@@ -64,6 +78,9 @@ class Hero extends Entity{
 	}
 }
 class Player extends Hero{
+	spd = 0.02;
+	name = "Shooter";
+	description = ["The basic player.", `"Has the gun, Does the shoot"`];
 	/**React to pressed keys*/
 	touchv1() {
 		var {touch, touch2} = this;
@@ -204,27 +221,62 @@ class Player extends Hero{
 		var colXp = false;
 		if(enemy) {
 			var dis = Entity.distance(this, enemy)/game.scale;
-			var x = enemy.mx - this.mx + dis * 5 * enemy.velocity.x;
-			var y = enemy.my - this.my + dis * 5 * enemy.velocity.y;
+			var x = enemy.mx - this.mx + dis * enemy.velocity.x/0.075;
+			var y = enemy.my - this.my + dis * enemy.velocity.y/0.075;
 			if(dis < 2.5) {
 				this.runFrom(enemy);
 				this.skill.secondary();
 			}else if(dis < 5) this.runFrom(enemy);
 			if(dis < 10) this.skill.directional(x, y);
 			else if(xp) colXp = true;
-			else this.moveTo(player)
 		}else if(xp) colXp = true;
 		if(colXp) this.moveTo(xp);
 	}
 	static weapon = Gun;
 	/**@type {Skill}*/
 	skill;
+	lives = 5;
 	get rotation() {return radian(this.velocity)}
 	spawner = 120;
 	color = "#55f";
 	shape = "square3";
 	color2 = "#f55";
+	shape2 = "square3";
+	get size2() {return this.size/2}
 }
-class Summoner extends Hero{
-	
+class Summoner extends Player{
+	ai() {
+		/**@type {Enemy[]}*/
+		var arr = enemies.asArray();
+		var arr2 = exp.asArray();
+		arr.sort((enemy, enemy2) => Entity.distance(this, enemy) - Entity.distance(this, enemy2));
+		arr2.sort((xp, xp2) => Entity.distance(this, xp) - Entity.distance(this, xp2));
+		var [enemy] = arr;
+		var [xp] = arr2;
+		if(xp && Entity.distance(this, xp) > 10 * game.scale) xp = undefined;
+		var colXp = false;
+		if(enemy) {
+			var dis = Entity.distance(this, enemy)/game.scale;
+			var x = enemy.mx - this.mx + dis * enemy.velocity.x/0.075;
+			var y = enemy.my - this.my + dis * enemy.velocity.y/0.075;
+			if(dis < 5) {
+				this.runFrom(enemy);
+				this.skill.secondary();
+			}else if(dis < 10) this.runFrom(enemy);
+			if(dis < 15) this.skill.directional(x, y);
+			else if(xp) colXp = true;
+		}else if(xp) colXp = true;
+		if(colXp) this.moveTo(xp);
+	}
+	spd = 0.015;
+	lives = 3;
+	name = "Summoner";
+	description = ["Can summon things", `"Scared of everything."`];
+	static weapon = Minion;
+	shape = "bullet";
+	color = "#aaa";
+	shape2 = "arrow";
+	color2 = "#fff";
+	get rotation() {return -PI/2}
+	get size2() {return this.size}
 }

@@ -24,6 +24,7 @@ function saveData() {
 }
 var baseData = {
 	catalog: new Set,
+	party: new Set,
 	firstRun: true,
 	touchStyle: 2,
 	level: 1,
@@ -51,4 +52,11 @@ dataParser.set("_catalog", value => {
 });
 dataStringfy.set("catalog", value => {
 	if(value) data._catalog = value.toArray();
+});
+dataParser.set("_party", value => {
+	if(value) data.party = new Set(value);
+	else data.party = new Set;
+});
+dataStringfy.set("party", value => {
+	if(value) data._party = value.toArray();
 });

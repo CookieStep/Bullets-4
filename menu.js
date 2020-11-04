@@ -134,4 +134,5 @@ mainMenu.stop = function() {
 }
 mainMenu.screen = function() {
 	game.x = innerWidth/2;
+	game.scale *= 1/2;
 }
