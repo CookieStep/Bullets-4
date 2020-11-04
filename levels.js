@@ -488,7 +488,7 @@ var generateLevel = [
 				}],
 				phasePause: true
 			}),
-			new levelPart({mainMenu: true});
+			new levelPart({mainMenu: true})
 		)
 	)
 ];
