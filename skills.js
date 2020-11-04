@@ -46,7 +46,7 @@ class Gun extends Skill{
 		bullet.x += user.size * x/2;
 		bullet.y += user.size * y/2;
 		bullets.push(bullet);
-		SFX.get("Shoot").play();
+		SFX.get(this.sound).play();
 	}
 	secondary() {
 		if(this.sk < this.rsk) return;
@@ -63,7 +63,7 @@ class Gun extends Skill{
 			let y = sin(rad);
 			bullet.x += user.size * x/2;
 			bullet.y += user.size * y/2;
-			SFX.get("Shoot").play();
+			SFX.get(this.sound).play();
 			bullets.push(bullet);
 		}
 	}
@@ -72,6 +72,7 @@ class Gun extends Skill{
 		var a = 20 - floor(this.sk/this.rsk);
 		if(a > 0) this.sk += a/320;
 	}
+	sound = "Shoot";
 	sk = 20;
 	rsk = 10;
 	rsk2 = 40;
@@ -82,6 +83,7 @@ class Gun extends Skill{
 }
 class Minion extends Gun{
 	projectile = MinionProjectile;
+	sound = "Spawn";
 	sk = 90;
 	rsk = 30;
 	rsk2 = 240;
@@ -94,5 +96,6 @@ class MinionProjectile extends GoGo{
 		this.color = parent.color;
 		this.color2 = parent.color2;
 	}
+	die() {}
 	scale = 1/2;
 }
