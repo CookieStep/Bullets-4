@@ -2,11 +2,7 @@ class Hero extends Entity{
 	tick() {
 		if(this.isMain) {
 			this.keys();
-			switch(data.touchStyle) {
-				case 1: this.touchv1();
-				case 2: this.touchv2();
-				case 3: this.touchv3();
-			}
+			this.touchv2();
 		}else this.ai();
 	}
 	prepare() {this.skill.sk = 0}
@@ -81,43 +77,16 @@ class Player extends Hero{
 	spd = 0.02;
 	name = "Shooter";
 	description = ["The basic player.", `"Has the gun, Does the shoot"`];
-	/**React to pressed keys*/
-	touchv1() {
-		var {touch, touch2} = this;
-		if(touch && touch.end) touch = false;
-		if(touch2 && touch2.end) touch2 = false;
-		if(!touch && !this.moved) touches.forEach(obj => {
-			if(obj != touch2 && !obj.end && Date.now() - game.tick * 5 > obj.start) {
-				touch = obj;
-			}
-		});
-		if(!touch2 && !this.skl) touches.forEach(obj => {
-			if(obj != touch && !obj.end && Date.now() - game.tick * 5 > obj.start) {
-				touch2 = obj;
-			}
-		});
-		if(touch && !this.moved) {
-			this.moveTo(touch);
-			this.touch = touch;
-			touch.used = true;
-		}
-		if(touch2 && !this.skl) {
-			if(this.skill) this.skill.directional(touch2.x - this.mx, touch2.y - this.my);
-			this.touch2 = touch2;
-			touch2.used = true;
-		}
-	}
 	touchv2() {
 		var {touch, touch2} = this;
 		if(touch && touch.end) touch = false;
-		if(touch2 && touch2.end) touch2 = false;
 		if(!touch && !this.moved) touches.forEach(obj => {
 			if(obj.sx < innerWidth/2 && obj != touch2 && !obj.end && Date.now() - game.tick * 5 > obj.start) {
 				touch = obj;
 			}
 		});
 		if(!touch2 && !this.skl) touches.forEach(obj => {
-			if(obj.sx > innerWidth/2 && obj != touch && !obj.end && Date.now() - game.tick * 5 > obj.start) {
+			if(obj.sx > innerWidth/2 && obj != touch && !obj.end) {
 				touch2 = obj;
 			}
 		});
@@ -136,12 +105,18 @@ class Player extends Hero{
 			ctx.strokeStyle = this.color;
 			ctx.moveTo(touch.sx, touch.sy);
 			ctx.lineTo(touch.x, touch.y);
+			ctx.moveTo(this.mx, this.my);
+			ctx.lineTo(this.mx + touch.x - touch.sx, this.my + touch.y - touch.sy);
 			ctx.stroke();
 		}
 		if(touch2 && !this.skl) {
 			this.touch2 = touch2;
-			if(this.skill) this.skill.directional(touch2.x - touch2.sx, touch2.y - touch2.sy);
-			else return;
+			if(this.skill && touch2.end) {
+				if(Date.now() - game.tick * 5 > touch2.start)
+					this.skill.directional(touch2.x - touch2.sx, touch2.y - touch2.sy);
+				else this.skill.secondary();
+			}
+			if(touch2.end) delete this.touch2;
 			drawShape({
 				x: touch2.sx - game.scale/4,
 				y: touch2.sy - game.scale/4,
@@ -154,58 +129,8 @@ class Player extends Hero{
 			ctx.strokeStyle = this.color2;
 			ctx.moveTo(touch2.sx, touch2.sy);
 			ctx.lineTo(touch2.x, touch2.y);
-			ctx.stroke();
-		}
-	}
-	touchv3() {
-		var {touch, touch2} = this;
-		if(touch && touch.end) touch = false;
-		if(!touch && !this.moved) touches.forEach(obj => {
-			if(obj.sx < innerWidth/2 && obj != touch2 && !obj.end && Date.now() - game.tick * 5 > obj.start) {
-				touch = obj;
-			}
-		});
-		if(!touch2 && !this.skl) touches.forEach(obj => {
-			if(obj.sx > innerWidth/2 && obj != touch && !obj.end && Date.now() - game.tick * 5 > obj.start) {
-				touch2 = obj;
-			}
-		});
-		if(touch && !this.moved) {
-			this.move(radian(touch.x - touch.sx, touch.y - touch.sy));
-			this.touch = touch;
-			drawShape({
-				x: touch.sx - game.scale/4,
-				y: touch.sy - game.scale/4,
-				size: game.scale/2,
-				color: this.color,
-				shape: "circle"
-			});
-			ctx.lineWidth = game.scale/4;
-			ctx.beginPath();
-			ctx.strokeStyle = this.color;
-			ctx.moveTo(touch.sx, touch.sy);
-			ctx.lineTo(touch.x, touch.y);
-			ctx.stroke();
-		}
-		if(touch2 && !this.skl) {
-			if(!touch2.end) {
-				this.touch2 = touch2;
-				return;
-			}else delete this.touch2;
-			if(this.skill) this.skill.directional(touch2.x - touch2.sx, touch2.y - touch2.sy);
-			else return;
-			drawShape({
-				x: touch2.sx - game.scale/4,
-				y: touch2.sy - game.scale/4,
-				size: game.scale/2,
-				color: this.color2,
-				shape: "circle"
-			});
-			ctx.lineWidth = game.scale/4;
-			ctx.beginPath();
-			ctx.strokeStyle = this.color2;
-			ctx.moveTo(touch2.sx, touch2.sy);
-			ctx.lineTo(touch2.x, touch2.y);
+			ctx.moveTo(this.mx, this.my);
+			ctx.lineTo(this.mx + touch2.x - touch2.sx, this.my + touch2.y - touch2.sy);
 			ctx.stroke();
 		}
 	}

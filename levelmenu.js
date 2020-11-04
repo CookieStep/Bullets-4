@@ -144,7 +144,7 @@ levelMenu.create = function() {
 	heros.clear();
 	Music.forEach(bgm => bgm.stop());
 	var level = this.items2[this.selected];
-	if(!level) {
+	if(!level && this.active) {
 		--this.active;
 		if(!this.active) this.stop();
 		else{

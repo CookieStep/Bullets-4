@@ -147,7 +147,9 @@ class levelPart{
 						case "nextLevel":
 							++game.level;
 							levelMenu.selected = game.level;
+							levelMenu.items2 = [...levelMenu.items];
 							levelMenu.create();
+							clearBad();
 						break;
 					}
 				});
