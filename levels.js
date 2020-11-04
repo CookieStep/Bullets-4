@@ -325,6 +325,9 @@ var generateLevel = [
 					color: TopHat.textColor,
 					then: "nextPart"
 				}],
+				setEvent: {
+					arena1: true
+				},
 				partPause: true
 			}),
 			new levelPart({
@@ -352,6 +355,9 @@ var generateLevel = [
 					color: TopHat.textColor,
 					then: "nextPart"
 				}],
+				setEvent: {
+					arena1: true
+				},
 				partPause: true
 			}),
 			new levelPart({
