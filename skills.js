@@ -84,9 +84,9 @@ class Gun extends Skill{
 class Minion extends Gun{
 	projectile = MinionProjectile;
 	sound = "Spawn";
-	sk = 90;
-	rsk = 30;
-	rsk2 = 240;
+	sk = 80;
+	rsk = 20;
+	rsk2 = 60;
 	shape = "square2";
 }
 class MinionProjectile extends GoGo{
@@ -96,6 +96,7 @@ class MinionProjectile extends GoGo{
 		this.color = parent.color;
 		this.color2 = parent.color2;
 	}
+	spd = 0.02;
 	die() {}
 	scale = 1/2;
 }

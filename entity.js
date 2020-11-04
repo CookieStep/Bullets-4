@@ -144,7 +144,7 @@ class Entity{
 		return Entity.distance(this, x);
 	}
 	prepare() {}
-	draw(fx, fy, fs) {
+	draw() {
 		var {
 			x, y,
 			size,
@@ -163,17 +163,13 @@ class Entity{
 			undoStrokeScale2
 		} = this;
 		var test = (what, type, fallback) => typeof what == type? what: fallback;
-		x = test(fx, "number", x);
-		y = test(fy, "number", y);
-		let m = size;
-		size = test(fs, "number", size);
-		m = size/m;
 		drawShape({shape, x, y, size, color, rotation, strokeAlpha, fillAlpha, undoStrokeScale});
 		if(shape2) {
-			if(size2) size = size2 * m;
+			if(size2) size = size2;
 			drawShape({
 				shape: shape2,
-				x: this.mx - size/2, y: this.my - size/2, size,
+				x: this.mx - size/2, y: this.my - size/2,
+				size: test(size2, "number", size),
 				color: test(color2, "string", color),
 				rotation: test(rotation2, "number", rotation),
 				fillAlpha: test(fillAlpha2, "number", fillAlpha),

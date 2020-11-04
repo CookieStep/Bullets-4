@@ -73,6 +73,7 @@ function levelMenu() {
 	if(switched) levelMenu.create();
 	else if((touch && !touch.used) || keys.get("select") == 1) levelMenu.startLevel();
 	if(keys.has("select")) keys.set("select", 2);
+	if(touch) touch.used = true;
 	ctx.fillStyle = level.color;
 	ctx.font = `${s/2}px Sans`;
 	for(let l = 0; l < level.desc.length; l++) {
@@ -202,10 +203,10 @@ levelMenu.items = [{
 		color: "#0005"
 	}
 }, {
-	name: "The summoner",
+	name: "The Summoner",
 	color: "#f55",
 	music: "Boss-1",
-	desc: ["Summons things. Duh.", "Is also afraid of like... everything."],
+	desc: ["Summons things.", "Is also afraid of like... everything."],
 	boss: [TheSummoner],
 	background: {
 		name: "level-1",
