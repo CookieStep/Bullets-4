@@ -493,7 +493,7 @@ var generateLevel = [
 					color: TopHat.textColor,
 					then: "nextPart"
 				}],
-				phasePause: true
+				partPause: true
 			}),
 			new levelPart({mainMenu: true, levelComplete: true})
 		)

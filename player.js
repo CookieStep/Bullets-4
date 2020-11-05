@@ -29,7 +29,10 @@ class Hero extends Entity{
 		var Splayer = new what().spawn();
 		if(!player || !player.skill || !player.lives)
 			Splayer.skill = new what.weapon(Splayer);
-		else Splayer.skill = player.skill;
+		else{
+			Splayer.skill = player.skill;
+			Splayer.skill.user = Splayer;
+		}
 		if(player && player.lives)
 			Splayer.lives = player.lives;
 		Splayer.isMain = true;
