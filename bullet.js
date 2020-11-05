@@ -5,7 +5,7 @@ class Bullet extends Entity{
 	knockback = 2;
 	constructor(parent, rad) {
 		super(parent);
-		this.color = parent.color;
+		this.color = parent.color2;
 		this.rad = rad;
 	}
 	pickLocation() {

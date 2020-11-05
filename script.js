@@ -1,7 +1,9 @@
 function update(e) {
 	if(Date.now() < update.last + (game.tick)) {update.run(); return}
 	update.last = Date.now();
-	if(mainMenu.active) mainMenu();
+	if(mainMenu.active) mainMenu.run();
+	else if(keybindMenu.active) keybindMenu();
+	else if(options.active) options.run();
 	else if(catalog.active) catalog.run();
 	else if(levelMenu.active) levelMenu();
 	else main();
@@ -53,7 +55,9 @@ onresize = () => {
 	});
 	backgrounds.clear();
 	if(mainMenu.active) mainMenu.screen();
+	else if(levelMenu.active) levelMenu.screen();
 	else if(catalog.active) catalog.screen();
+	else if(options.active) options.screen();
 }
 onblur = () => {
 	cancelAnimationFrame(update.request);
@@ -70,6 +74,9 @@ onkeydown = e => {
 	var key = data.keyBind[e.code];
 	if(keys.has(key)) keys.set(key, 3);
 	else keys.set(key, 1);
+	if(keybindMenu.active && keybindMenu.selected) {
+		keybindMenu.pressed = e.code;
+	}
 }
 onkeyup = e => {
 	var key = data.keyBind[e.code];

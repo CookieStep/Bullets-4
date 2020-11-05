@@ -71,32 +71,67 @@ class Gun extends Skill{
 		if(this.lastShot) this.lastShot--;
 		var a = 20 - floor(this.sk/this.rsk);
 		if(a > 0) this.sk += a/320;
+		this.color = this.user.color2;
 	}
 	sound = "Shoot";
 	sk = 20;
 	rsk = 10;
-	rsk2 = 40;
+	rsk2 = 60;
 	lastShot = 0;
 	projectile = Bullet;
 	shape = "square3";
 	color = "white";
 }
 class Minion extends Gun{
-	projectile = MinionProjectile;
+	projectile = MinionProjectileGoGo;
+	list = [MinionProjectileGoGo, MinionProjectileUnderbox, MinionProjectileChill];
+	sel = 0;
+	secondary() {
+		++this.sel;
+		this.sel %= this.list.length;
+		this.select();
+	}
+	select(num=-1) {
+		if(num != -1) this.sel = num;
+		this.projectile = this.list[this.sel];
+		let summon = new this.projectile(this.user);
+		this.shape = summon.shape;
+		this.user.shape2 = summon.shape2;
+	}
 	sound = "Spawn";
 	sk = 80;
 	rsk = 20;
 	rsk2 = 60;
 	shape = "square2";
 }
-class MinionProjectile extends GoGo{
+class MinionProjectileGoGo extends GoGo{
 	constructor(parent, rad) {
 		super(parent);
 		this.velocity = point(rad);
 		this.color = parent.color;
 		this.color2 = parent.color2;
 	}
-	spd = 0.02;
+	spd = 0.03;
+	die() {}
+	scale = 1/2;
+}
+class MinionProjectileUnderbox extends Underbox{
+	constructor(parent, rad) {
+		super(parent);
+		this.target = point(rad);
+		this.color = parent.color;
+		this.color2 = parent.color2;
+	}
+	spd = 0.03;
+	die() {}
+	scale = 1/2;
+}
+class MinionProjectileChill extends Chill{
+	constructor(parent) {
+		super(parent);
+		this.color = parent.color;
+		this.color2 = parent.color2;
+	}
 	die() {}
 	scale = 1/2;
 }

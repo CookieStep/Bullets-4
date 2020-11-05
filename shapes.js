@@ -124,6 +124,13 @@ class Shape extends Path2D{
 		path.rect(0, 3, 1, 1);
 		path.rect(3, 3, 1, 1);
 	}));
+	shapes.set("plus", createShape(path => {
+		path.scale = 2;
+		path.moveTo(1, 0);
+		path.lineTo(1, 2);
+		path.moveTo(0, 1);
+		path.lineTo(2, 1);
+	}));
 		//Icons
 		//MenuBoxes
 	shapes.set("squareBase", createShape(path => {

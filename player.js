@@ -18,7 +18,8 @@ class Hero extends Entity{
 		if(keys.has("up2")) y--;
 		this.skl = Boolean(x || y);
 		if(this.skill && (x || y)) this.skill.directional(x, y);
-		else if(this.skill && (keys.get("select") == 1 || keys.get("select") == 3)) this.skill.secondary();
+		else if(this.skill && (keys.get("secondary") == 1 || keys.get("secondary") == 3)) this.skill.secondary();
+		if(keys.has("secondary")) keys.set("secondary", 2);
 		["up", "left", "right", "down"].forEach(key => {
 			if(keys.has(key)) this.moved = true;
 		});
@@ -26,7 +27,11 @@ class Hero extends Entity{
 	ai() {}
 	static summon(what) {
 		var Splayer = new what().spawn();
-		Splayer.skill = new what.weapon(Splayer);
+		if(!player || !player.skill || !player.lives)
+			Splayer.skill = new what.weapon(Splayer);
+		else Splayer.skill = player.skill;
+		if(player && player.lives)
+			Splayer.lives = player.lives;
 		Splayer.isMain = true;
 		player = new Spawner(Splayer, () => player = Splayer);
 		return Splayer;
@@ -36,13 +41,17 @@ class Hero extends Entity{
 		var i = 0;
 		var r = PI * 2/arrHeros.length;
 		var s = game.scale * 2;
-		arrHeros.forEach(hero => {
+		var id = heros.push(undefined);
+		heros.delete(id);
+		arrHeros.forEach(hero => {if(hero) {
 			var nhero = new hero().spawn();
 			nhero.x += cos(i * r) * s;
 			nhero.x += sin(i++ * r) * s;
 			nhero.skill = new hero.weapon(nhero);
+			nhero.id = id++;
+			nhero.spawn();
 			Spawner.summon(new Spawner(nhero, heros));
-		});
+		}});
 	}
 	deathSFX = "Death";
 	/**Moves the player to the middle of the screen*/
@@ -50,6 +59,13 @@ class Hero extends Entity{
 		data.party.add(this.name);
 		this.mx = innerWidth/2;
 		this.my = innerHeight/2;
+		var i = Number(this.id) + 1;
+		var r = PI * 2/3;
+		var s = game.scale * 2;
+		this.x += cos(i * r) * s;
+		this.y += sin(i * r) * s;
+		SFX.get("Spawn").play();
+		Particle.summon(new Shockwave(this, 15 * game.scale));
 		enemies.forEach(enemy => {
 			if(Entity.distance(this, enemy) < 15 * game.scale) {
 				var radian = Entity.radianTo(this, enemy);
@@ -57,13 +73,6 @@ class Hero extends Entity{
 				enemy.my = this.my + sin(radian) * game.scale * 15;
 			}
 		});
-		SFX.get("Spawn").play();
-		var i = Number(this.id);
-		var r = PI;
-		var s = game.scale * 2;
-		this.x += cos(i * r) * s;
-		this.y += sin(i * r) * s;
-		Particle.summon(new Shockwave(this, 15 * game.scale));
 	}
 	die() {
 		if(game.level > 0 && this.lives > 0 && !hardcore) {
@@ -77,6 +86,7 @@ class Player extends Hero{
 	spd = 0.02;
 	name = "Shooter";
 	description = ["The basic player.", `"Has the gun, Does the shoot"`];
+	/**React to pressed keys*/
 	touchv2() {
 		var {touch, touch2} = this;
 		if(touch && touch.end) touch = false;
@@ -146,16 +156,30 @@ class Player extends Hero{
 		var colXp = false;
 		if(enemy) {
 			var dis = Entity.distance(this, enemy)/game.scale;
-			var x = enemy.mx - this.mx + dis * enemy.velocity.x/0.075;
-			var y = enemy.my - this.my + dis * enemy.velocity.y/0.075;
 			if(dis < 2.5) {
 				this.runFrom(enemy);
 				this.skill.secondary();
 			}else if(dis < 5) this.runFrom(enemy);
-			if(dis < 10) this.skill.directional(x, y);
+			if(dis < 10) this.shoot(enemy);
 			else if(xp) colXp = true;
 		}else if(xp) colXp = true;
 		if(colXp) this.moveTo(xp);
+	}
+	shoot(enemy) {
+		var start = {x: this.mx, y: this.my};
+		var spd = game.scale/6;
+		var target = {x: enemy.mx, y: enemy.my};
+		var velocity = enemy.velocity;
+		for(var i = 1; i < 250; i++) {
+			var tx = target.x + velocity.x * i;
+			var ty = target.y + velocity.y * i;
+			if(distance(tx, ty, start.x, start.y) < spd * i) break;
+		}
+		if(i < 250) {
+			var x = tx - start.x;
+			var y = ty - start.y;
+			this.skill.directional(x, y);
+		}
 	}
 	static weapon = Gun;
 	/**@type {Skill}*/
@@ -185,11 +209,17 @@ class Summoner extends Player{
 			var x = enemy.mx - this.mx + dis * enemy.velocity.x/0.075;
 			var y = enemy.my - this.my + dis * enemy.velocity.y/0.075;
 			if(dis < 5) {
+				this.skill.select(2);
+				this.skill.directional(x, y);
 				this.runFrom(enemy);
-				this.skill.secondary();
-			}else if(dis < 10) this.runFrom(enemy);
-			if(dis < 15) this.skill.directional(x, y);
-			else if(xp) colXp = true;
+			}else if(dis < 10) {
+				this.skill.select(0);
+				this.skill.directional(x, y);
+				this.runFrom(enemy);
+			}else if(dis < 15) {
+				this.skill.select(1);
+				this.skill.directional(x, y);
+			}else if(xp) colXp = true;
 		}else if(xp) colXp = true;
 		if(colXp) this.moveTo(xp);
 	}

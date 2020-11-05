@@ -59,13 +59,6 @@ class Entity{
 		this.x = random(x2 - this.size, x);
 		this.y = random(y2 - this.size, y);
 	}
-	get prediction() {
-		var num = 0;
-		for(let i = 0; i < 25; i++) {
-			num += 1 * pow(this.friction, i);
-		}
-		return num;
-	}
 	get player() {
 		var arr = heros.asArray();
 		arr.push(player);

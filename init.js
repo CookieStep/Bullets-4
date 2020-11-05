@@ -23,6 +23,7 @@ var flip = (num=1) => round(random()) * num;
 var radian = (x, y=undefined) => typeof x == "number"? atan2(y, x): atan2(x.y, x.x);
 var point = (radian, distance=1) => ({x: cos(radian) * distance, y: sin(radian) * distance});
 var constrain = (value, max=1, min=0) => round((value - min)/(max - min)) * (max - min) + min;
+var distance = (x, y, x2=0, y2=0) => sqrt(pow(x - x2, 2) + pow(y - y2, 2));
 /**@type {Player}*/
 var player;
 /**@type {Collection<Player>}*/

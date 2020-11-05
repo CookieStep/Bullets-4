@@ -9,7 +9,7 @@ Set.prototype.toArray = function() {
 }
 var data;
 function loadData() {
-	data = baseData;
+	data = {...baseData};
 	if(localStorage.saveData) {
 		assign(data, JSON.parse(localStorage.saveData));
 	}else{
@@ -40,7 +40,8 @@ var baseData = {
 		Space: "select",
 		KeyW: "up",
 		ArrowUp: "up2"
-	}
+	},
+	clearedIds: {0: true}
 }
 /**@type {Map<string, (value) => void>}*/
 var dataParser = new Map;

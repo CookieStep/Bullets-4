@@ -47,7 +47,7 @@ class TheSummoner extends Boss{
 		() => {if(this.moveTo(game.x2/2, game.y2/2) < game.scale/5) this.summon(GoGo, 5)},
 		() => {
 			var {player} = this;
-			if(this.time < 250 && player && player.alive) this.runFrom(player);
+			if(this.time < 1000 && player && player.alive) this.runFrom(player);
 			else this.next();
 		},
 		() => (this.summons = 0, this.shape2 = "arrow2", this.next()),
@@ -55,7 +55,7 @@ class TheSummoner extends Boss{
 		() => {if(this.moveTo(game.x2/6, game.y2/4) < game.scale/5) this.summon(Underbox, 5)},
 		() => {
 			var {player} = this;
-			if(this.time < 250 && player && player.alive) this.runFrom(player);
+			if(this.time < 1000 && player && player.alive) this.runFrom(player);
 			else this.next();
 		},
 		() => (this.summons = 0, this.shape2 = "", this.next()),
@@ -63,7 +63,7 @@ class TheSummoner extends Boss{
 		() => {if(this.moveTo(game.x2 * 5/6 - this.size/2, game.y2 * 3/4 - this.size/2) < game.scale/5) this.summon(Chill, 5)},
 		() => {
 			var {player} = this;
-			if(this.time < 250 && player && player.alive) this.runFrom(player);
+			if(this.time < 1000 && player && player.alive) this.runFrom(player);
 			else this.next();
 		},
 		() => this.setPhase(0)

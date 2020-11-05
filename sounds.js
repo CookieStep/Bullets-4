@@ -81,6 +81,10 @@ Music.set("Boss-1", new Bgm({volume: 1}, {
 	src: "Music/Boss1.wav",
 	type: "audio/wav"
 }));
+Music.set("Options", new Bgm({volume: 1}, {
+	src: "Music/Options.wav",
+	type: "audio/wav"
+}));
 /**@type {Map<string, Sound>}*/
 var SFX = new Map;
 SFX.set("Death", new Sound({volume: 0.5}, {src: "SFX/Death.wav", type: "audio/wav"}));

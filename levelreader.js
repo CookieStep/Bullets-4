@@ -180,7 +180,9 @@ class levelPart{
 				if(this.partPause) this.time = -1;
 				if(this.phasePause) phase.paused = true;
 				if(this.levelPause) level.paused = true;
-				if(this.levelComplete && data.level <= game.level) data.level = game.level + 1;
+				if(this.levelComplete && data.level <= game.level) {
+					data.clearedIds[game.levelId] = true;
+				}
 				if(this.mainMenu) mainMenu.setup();
 				if(this.waitUntilClear && !enemies.size && !particles.size) phase.next();
 			}

@@ -1,12 +1,12 @@
-function mainMenu() {
-	main(false);
-	ctx.fillStyle = "#000";
+/**@this {mainMenu}*/
+function mainMenu(title="Bullets 4") {
+	ctx.fillStyle = backgroundColor;
 	ctx.fillRect(0, 0, game.x, game.y2);
 	ctx.lineWidth = 5;
 	ctx.strokeStyle = "white";
 	ctx.moveTo(game.x, 0);
 	ctx.lineTo(game.x, game.y2);
-	ctx.stroke();
+	if(game.x != game.x2) ctx.stroke();
 	var any = (...list) => {
 		var any = false;
 		list.forEach(v => {
@@ -14,33 +14,32 @@ function mainMenu() {
 		});
 		return any;
 	}
-	if(any("down", "down2", "right", "right2")) mainMenu.selected++;
-	if(any("up", "up2", "left", "left2")) mainMenu.selected--;
+	if(any("down", "down2", "right", "right2")) this.selected++;
+	if(any("up", "up2", "left", "left2")) this.selected--;
 	["up", "up2", "left", "left2", "right", "right2", "down", "down2"].forEach(key => {
 		if(keys.has(key)) keys.set(key, 2);
 	});
-	mainMenu.selected = (mainMenu.selected + mainMenu.items.length + 1) % (mainMenu.items.length + 1);
-	var {selected} = mainMenu;
+	this.selected = (this.selected + this.items.length + 1) % (this.items.length + 1);
+	var {selected} = this;
 	var h = innerHeight/6;
 	ctx.font = `${round(h)}px Sans`;
-	ctx.fillStyle = "white";
-	var text = "Bullets 4";
+	var text = title;
 	var {width} = ctx.measureText(text);
 	var x = (game.x - width)/2;
 	var color = ctx.createLinearGradient(x, 0, x + width, 0);
-	color.addColorStop(0, "white");
-	color.addColorStop(1, "red");
+	color.addColorStop(0, this.color);
+	color.addColorStop(1, this.color2);
 	ctx.fillStyle = color;
 	ctx.fillText(text, x, h);
 	let i = 0;
 	h *= 1/2;
 	ctx.font = `${h}px Sans`;
-	var spa = 2.25
+	var spa = 2.25;
 	var touch;
 	touches.forEach(obj => {
 		if(!obj.end && !obj.used && !touch) touch = obj;
 	});
-	for(let part of mainMenu.items) {
+	for(let part of this.items) {
 		let {text, base, color, edge} = part;
 		let outline = selected == i? "white": color;
 		ctx.fillStyle = "white";
@@ -49,6 +48,8 @@ function mainMenu() {
 		let y = h * i * spa;
 		y += h * 3.5;
 		h *= 4/3;
+		if(part.y) y = part.y(h);
+		if(part.x) x = part.x(width);
 		drawShape({shape: base.shapeFill, x, y, size: width, sizeY: h, strokeAlpha: 0, color});
 		drawShape({shape: edge.shapeFill, x: x - h, y, size: h, strokeAlpha: 0, color});
 		drawShape({shape: edge.shapeFill, x: x + width, y, size: h, strokeAlpha: 0, color, rotation: PI});
@@ -68,9 +69,12 @@ function mainMenu() {
 	if((touch && touch.used) || keys.get("select") == 1) {
 		keys.set("select", 2);
 		if(touch) touch.used = true;
-		if(selected in mainMenu.items && mainMenu.items[selected].select) mainMenu.items[selected].select();
+		if(selected in this.items && this.items[selected].select) this.items[selected].select();
 	}
 }
+mainMenu.color = "white";
+mainMenu.color2 = "red";
+mainMenu.run = function() {main(false); this.call(this)}
 mainMenu.selected = -1;
 mainMenu.items = [{
 	text: "Story mode",
@@ -113,6 +117,23 @@ mainMenu.items = [{
 		mainMenu.stop();
 		catalog.setup();
 	}
+}, {
+	text: "Options",
+	color: "#2ad",
+	base: {
+		shape: "squareBase",
+		shapeFill: "square"
+	},
+	edge: {
+		shape: "circleEdge",
+		shapeFill: "circleEdgeFill"
+	},
+	y(s) {return game.y2 - s * 1.1},
+	x(width) {return game.x * 3/4 - width/2},
+	select() {
+		mainMenu.stop();
+		options.setup();
+	}
 }]
 mainMenu.setup = function() {
 	player = undefined;
@@ -134,5 +155,4 @@ mainMenu.stop = function() {
 }
 mainMenu.screen = function() {
 	game.x = innerWidth/2;
-	game.scale *= 1/2;
 }

@@ -7,7 +7,6 @@ class Enemy extends Entity{
 			if(typeof y == "number") this.my = y;
 			++tries;
 			good = (!(player && player.alive) || Entity.distance(player, this) > game.scale * 5) || skip;
-			if(good) console.log(good);
 		}while(!good && tries < 1000);
 		if(good && sound) SFX.get("Spawn").play();
 		return good? this: good;

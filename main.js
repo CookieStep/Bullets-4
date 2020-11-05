@@ -1,5 +1,6 @@
 function main(focus=true) {
 	runLevel(game.level);
+	if(dialogue.active) dialogue.update();
 	if(player && player.alive) player.update();
 	enemies.remove(enemy => !enemy.alive);
 	exp.remove(xp => !xp.alive);
@@ -63,7 +64,13 @@ function main(focus=true) {
 				Entity.collide(enemy, enemy2, focus);
 		}
 	}
-	if(dialogue.active) dialogue.update();
+	{let bulletsArray = bullets.asArray();
+		for(let a = 0; a < bulletsArray.length; a++) for(let b = a + 1; b < bulletsArray.length; b++) {
+			let bullet = bulletsArray[a], bullet2 = bulletsArray[b];
+			if(Entity.isTouching(bullet, bullet2))
+				Entity.collide(bullet, bullet2, focus);
+		}
+	}
 	ctx.globalCompositeOperation = "destination-out";
 	ctx.fillStyle = "#fff5";
 	bctx.fillStyle = backgroundColor;

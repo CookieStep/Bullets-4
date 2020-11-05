@@ -11,7 +11,8 @@ function clearBad() {
 	bullets.clear();
 	heros.clear();
 	if(game.level < 1) return;
-	game.hero.summon(game.hero);
+	Hero.summon(game.hero);
+	Hero.summonBulk(...game.party);
 }
 var generateLevel = [
 	() => new levelReadable(
@@ -494,7 +495,7 @@ var generateLevel = [
 				}],
 				phasePause: true
 			}),
-			new levelPart({mainMenu: true})
+			new levelPart({mainMenu: true, levelComplete: true})
 		)
 	)
 ];
