@@ -22,25 +22,27 @@ function saveData() {
 	dataStringfy.forEach((value, key) => value(data[key]));
 	localStorage.saveData = JSON.stringify(data);
 }
+var keyBind = () => ({
+	Backspace: "back",
+	KeyS: "down",
+	ArrowDown: "down2",
+	Enter: "enter",
+	KeyA: "left",
+	ArrowLeft: "left2",
+	KeyD: "right",
+	ArrowRight: "right2",
+	Space: "select",
+	KeyW: "up",
+	ArrowUp: "up2",
+	ShiftRight: "secondary"
+});
 var baseData = {
 	catalog: new Set,
 	party: new Set,
 	firstRun: true,
 	touchStyle: 2,
 	level: 1,
-	keyBind: {
-		Backspace: "back",
-		KeyS: "down",
-		ArrowDown: "down2",
-		Enter: "enter",
-		KeyA: "left",
-		ArrowLeft: "left2",
-		KeyD: "right",
-		ArrowRight: "right2",
-		Space: "select",
-		KeyW: "up",
-		ArrowUp: "up2"
-	},
+	keyBind: keyBind(),
 	clearedIds: {0: true}
 }
 /**@type {Map<string, (value) => void>}*/

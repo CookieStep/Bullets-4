@@ -9,6 +9,7 @@ class Sound{
 		this.sources = sources;
 		let elements = [];
 		let {volume=1} = options;
+		this.volume = volume;
 		for(let source of sources) {
 			let element = document.createElement("audio");
 			element.volume = volume;
@@ -18,13 +19,25 @@ class Sound{
 			elements.push(element);
 		}
 		this.elements = elements;
+		this.loaded = 0;
+		this.elements.forEach(element => element.oncanplaythrough = () => ++this.loaded);
 	}
+	get isLoaded() {return this.loaded == this.elements.length}
 	get element() {return this.elements[floor(random(this.elements.length))]}
 	play() {
 		let {element} = this
 		element.currentTime = 0;
 		element.play();
 	}
+	update() {this.elements.forEach(element =>
+		element.volume = this.volume * Sound.volume
+	)}
+	static _volume = 1;
+	static set volume(val) {
+		this._volume = val;
+		SFX.forEach(sfx => sfx.update());
+	}
+	static get volume() {return this._volume}
 }
 class Bgm{
 	/**@param {{volume: number}} options
@@ -34,6 +47,7 @@ class Bgm{
 		this.sources = sources;
 		sources.sort(() => random(2) - 1);
 		let {volume=1} = options;
+		this.volume = volume * Bgm.volume;
 		let element = document.createElement("audio");
 		element.volume = volume;
 		element.loop = true;
@@ -43,6 +57,7 @@ class Bgm{
 			element.appendChild(child);
 		}
 		this.element = element;
+		this.element.oncanplaythrough = () => this.isLoaded = true;
 	}
 	play() {
 		let {element} = this
@@ -58,6 +73,13 @@ class Bgm{
 		element.currentTime = 0;
 		this.isPlaying = false;
 	}
+	update() {this.element.volume = this.volume * Bgm.volume}
+	static _volume = 1;
+	static set volume(val) {
+		this._volume = val;
+		Music.forEach(bgm => bgm.update());
+	}
+	static get volume() {return this._volume}
 }
 /**@type {Map<string, Bgm>}*/
 var Music = new Map;

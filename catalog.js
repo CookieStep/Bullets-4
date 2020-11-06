@@ -82,7 +82,10 @@ var catalog = {
 				hero.hp = hero.maxHp;
 				hero.spawn();
 			}else if(touch) {
-				if(touch.x > hero.x && touch.x < hero.x + hero.size && touch.y > hero.y && touch.y < hero.y + hero.size) selected = id;
+				if(touch.x > hero.x && touch.x < hero.x + hero.size && touch.y > hero.y && touch.y < hero.y + hero.size) {
+					this.selected = id;
+					touch.used = true;
+				}
 			}
 			++id;
 		});
@@ -91,9 +94,19 @@ var catalog = {
 				enemy.hp = enemy.maxHp;
 				enemy.spawn();
 			}else if(touch) {
-				if(touch.x > enemy.x && touch.x < enemy.x + enemy.size && touch.y > enemy.y && touch.y < enemy.y + enemy.size) selected = id;
+				if(touch.x > enemy.x && touch.x < enemy.x + enemy.size && touch.y > enemy.y && touch.y < enemy.y + enemy.size) {
+					this.selected = id;
+					touch.used = true;
+				}
 			}
 			++id;
+		});
+		var del = 0;
+		exp.forEach(xp => {
+			if(exp.size - del > 50) {
+				xp.hp = 0;
+				++del;
+			}
 		});
 		ctx.fillStyle = "#000";
 		ctx.fillRect(0, 0, game.x, game.y2);

@@ -226,12 +226,12 @@ class Entity{
 			y = a.my - b.my;
 		var i = 10;
 		if(x < s) {
-			a.velocity.x = (x * b.knockback/i) * a.knockRes;
-			b.velocity.x = (-x * a.knockback/i) * b.knockRes;
+			a.velocity.x = (x * b.knockback/i) * a.knockRes + a.velocity.x * (1 - a.knockRes);
+			b.velocity.x = (-x * a.knockback/i) * b.knockRes + b.velocity.x * (1 - b.knockRes);
 		}
 		if(y < s) {
-			a.velocity.y = (y * b.knockback/i) * a.knockRes;
-			b.velocity.y = (-y * a.knockback/i) * b.knockRes;
+			a.velocity.y = (y * b.knockback/i) * a.knockRes + a.velocity.x * (1 - a.knockRes);
+			b.velocity.y = (-y * a.knockback/i) * b.knockRes + b.velocity.x * (1 - b.knockRes);
 		}
 	}
 }

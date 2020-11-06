@@ -10,9 +10,11 @@ function main(focus=true) {
 	particles.remove(particle => !particle.alive);
 	exp.forEach(xp => {
 		var add = () => {
+			let amo = heros.size;
+			if(player && player.alive) ++amo;
 			if(player && player.alive && player.skill) ++player.skill.sk;
 			heros.forEach(hero => {
-				if(hero.skill) ++hero.skill.sk;
+				if(hero.skill) hero.skill.sk += 1/amo;
 			});
 		}
 		xp.update();
@@ -50,6 +52,10 @@ function main(focus=true) {
 		enemies.forEach(enemy => {
 			if(Entity.isTouching(enemy, npc))
 				Entity.collide(npc, enemy, focus);
+		});
+		heros.forEach(hero => {
+			if(Entity.isTouching(hero, npc))
+				Entity.collide(npc, hero, focus);
 		});
 		bullets.forEach(bullet => {
 			if(Entity.isTouching(bullet, npc))

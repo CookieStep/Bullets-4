@@ -6,12 +6,12 @@ function runLevel(number) {
 var levels = [];
 function clearBad() {
 	enemies.clear();
-	exp.clear();
 	particles.clear();
 	bullets.clear();
-	heros.clear();
-	if(game.level < 1) return;
+	if(game.level < 1 || (player && player.alive)) return;
 	Hero.summon(game.hero);
+	heros.clear();
+	exp.clear();
 	Hero.summonBulk(...game.party);
 }
 var generateLevel = [

@@ -31,7 +31,20 @@ onload = () => {
 	document.body.appendChild(canvas);
 	loadData();
 	if(!data.firstRun) mainMenu.setup();
-	update.run();
+	startup();
+}
+function startup() {
+	var allLoaded = true;
+	Music.forEach(bgm => {
+		if(!bgm.isLoaded) allLoaded = false;
+	});
+	SFX.forEach(sfx => {
+		if(!sfx.isLoaded) allLoaded = false;
+	});
+	if(allLoaded) {
+		document.title = "Bullets 4";
+		update.run();
+	}else requestAnimationFrame(startup);
 }
 onresize = () => {
 	assign(canvas, {
@@ -74,7 +87,7 @@ onkeydown = e => {
 	var key = data.keyBind[e.code];
 	if(keys.has(key)) keys.set(key, 3);
 	else keys.set(key, 1);
-	if(keybindMenu.active && keybindMenu.selected) {
+	if(keybindMenu.active && "selected" in keybindMenu) {
 		keybindMenu.pressed = e.code;
 	}
 }

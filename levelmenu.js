@@ -71,13 +71,13 @@ function levelMenu() {
 		ctx.fillText(text, x2, y3);
 		ctx.restore();
 	}
-	if(!data.clearedIds[level.id]) {
+	if(!data.clearedIds[level.id] && levelMenu.active == 1) {
 		let i = tick % 20;
 		i = abs(i - 10)/5 + 3;
 		let a = s/i;
 		ctx.fillStyle = "yellow";
 		ctx.font = `${a}px Sans`
-		let text = "New";
+		let text = "New level";
 		let w2 = ctx.measureText(text).width;
 		let x = (innerWidth - width)/2 - s/2;
 		let y2 = y - s * 6/5;
@@ -154,8 +154,7 @@ levelMenu.startLevel = function() {
 				obj.desc.push("Select it again to have an empty party slot");
 			}else{
 				obj.desc.push(`Lives: ${hero.lives}`);
-				obj.desc.push(`Directional skill cost: ${weapon.rsk}`);
-				obj.desc.push(`Burst skill cost: ${weapon.rsk2}`);
+				obj.desc.push(...weapon.desc);
 			}
 			obj.name = hero.name;
 			obj.color = hero.color;

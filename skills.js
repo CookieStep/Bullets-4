@@ -73,6 +73,10 @@ class Gun extends Skill{
 		if(a > 0) this.sk += a/320;
 		this.color = this.user.color2;
 	}
+	get desc() {return [
+		`Shoot cost: ${this.rsk}`,
+		`Burst shot cost: ${this.rsk2}`
+	]}
 	sound = "Shoot";
 	sk = 20;
 	rsk = 10;
@@ -98,10 +102,13 @@ class Minion extends Gun{
 		this.shape = summon.shape;
 		this.user.shape2 = summon.shape2;
 	}
+	get desc() {return [
+		`Summon cost: ${this.rsk}`,
+		`Press "${keybindMenu.get("secondary")}" to switch summon`
+	]}
 	sound = "Spawn";
 	sk = 80;
 	rsk = 20;
-	rsk2 = 60;
 	shape = "square2";
 }
 class MinionProjectileGoGo extends GoGo{
