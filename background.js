@@ -72,4 +72,4 @@ bckdrpGen.set("level-1", (width, height) => createBackground(path => {
     path.lineTo(w * 5/6 - 3, h/2);
     path.lineTo(w/2 + 5, h);
     path.stroke = "#f00a";
-}))
+}));

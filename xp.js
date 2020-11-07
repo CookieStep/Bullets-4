@@ -1,6 +1,7 @@
 class Exp extends Entity{
-	constructor(parent, rad) {
+	constructor(parent, xp, rad) {
 		super(parent);
+		this.xp = xp/10;
 		this.rad = rad;
 	}
 	r = random(PI);
@@ -20,11 +21,11 @@ class Exp extends Entity{
 		this.velocity = point(this.rad, this.spd * this.size * 10);
 	}
 	scale = 1/4;
-	static summon(dead) {
+	static summon(dead, xp) {
 		var r = PI/5;
 		var s = random(PI);
 		for(let i = 0; i < 10; i++)
-			exp.push(new Exp(dead, r * i + s).spawn());
+			exp.push(new Exp(dead, xp, r * i + s).spawn());
 	}
 	color = "#ff5";
 	get rotation() {return this.r}

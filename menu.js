@@ -1,4 +1,4 @@
-/**@this {mainMenu}*/
+/**@this {mainMenu} @return {void} Void*/
 function mainMenu(title="Bullets 4") {
 	ctx.fillStyle = backgroundColor;
 	ctx.fillRect(0, 0, game.x, game.y2);
@@ -101,6 +101,9 @@ mainMenu.items = [{
 	edge: {
 		shape: "triEdge",
 		shapeFill: "triEdgeFill"
+	},
+	select() {
+		challenges.setup();
 	}
 }, {
 	text: "Catalog",

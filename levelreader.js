@@ -123,35 +123,38 @@ class levelPart{
 	}
 	/**@param {levelPhase} phase @param {levelReadable} level*/
 	run(phase, level) {
+		function runThen(then) {
+			switch(then) {
+				case "nextPart":
+					phase.next();
+				break;
+				case "nextPhase":
+					level.next();
+				break;
+				case "nextLevel":
+					++game.level;
+					levelMenu.selected = game.level;
+					levelMenu.items2 = [...levelMenu.items];
+					levelMenu.create(false);
+					clearBad();
+				break;
+			}
+		}
 		var part = this;
 		var canEnd = true;
-		if(this.wait < this.time) {
+		if(speedrun || this.wait < this.time) {
 			if(this.summons) this.summons.forEach(value => {
 				var {what, amount=1, params=[]} = value;
 				if(!("summoned" in value)) value.summoned = 0;
 				if(amount > value.summoned && what.summon(new what, ...params)) ++value.summoned;
 				if(amount > value.summoned) canEnd = false;
 			});
-			if(this.dialogue) this.dialogue.forEach(value => {
+			if(this.dialogue && !speedrun) this.dialogue.forEach(value => {
 				var {text, color, continued, auto, onFinished, then} = value;
 				var a = dialogue(text, color, {continued, auto});
 				if(onFinished || then) a.then(() => {
 					if(onFinished) onFinished(part, phase, level)
-					if(then) switch(then) {
-						case "nextPart":
-							phase.next();
-						break;
-						case "nextPhase":
-							level.next();
-						break;
-						case "nextLevel":
-							++game.level;
-							levelMenu.selected = game.level;
-							levelMenu.items2 = [...levelMenu.items];
-							levelMenu.create();
-							clearBad();
-						break;
-					}
+					if(then) runThen(then);
 				});
 			});
 			if(Music.has(this.startBgm)) Music.get(this.startBgm).play();
@@ -175,6 +178,10 @@ class levelPart{
 						game.event[key] = val;
 					}
 				}
+				if(speedrun && this.dialogue) this.dialogue.forEach(value => {
+					if(value.onFinished) value.onFinished(part, phase, level);
+					if(value.then) runThen(value.then);
+				});
 				if(this.nextPart) phase.next();
 				if(this.nextPhase) level.next();
 				if(this.partPause) this.time = -1;

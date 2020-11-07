@@ -4,6 +4,7 @@ function update(e) {
 	if(mainMenu.active) mainMenu.run();
 	else if(keybindMenu.active) keybindMenu();
 	else if(options.active) options.run();
+	else if(challenges.active) challenges.run();
 	else if(catalog.active) catalog.run();
 	else if(levelMenu.active) levelMenu();
 	else main();
@@ -69,6 +70,7 @@ onresize = () => {
 	backgrounds.clear();
 	if(mainMenu.active) mainMenu.screen();
 	else if(levelMenu.active) levelMenu.screen();
+	else if(challenges.active) challenges.screen();
 	else if(catalog.active) catalog.screen();
 	else if(options.active) options.screen();
 }

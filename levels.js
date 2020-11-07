@@ -9,8 +9,10 @@ function clearBad() {
 	particles.clear();
 	bullets.clear();
 	if(game.level < 1 || (player && player.alive)) return;
-	Hero.summon(game.hero);
+	if(hardcore || !(player && player.lives)) player = undefined;
+	game.score = 0;
 	heros.clear();
+	Hero.summon(game.hero);
 	exp.clear();
 	Hero.summonBulk(...game.party);
 }

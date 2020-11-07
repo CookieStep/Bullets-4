@@ -14,12 +14,12 @@ class Boss extends Enemy{
 	}
 	attack(enemy) {
 		super.attack(enemy);
-		Exp.summon(this);
+		Exp.summon(this, 0);
 	}
 	die() {
 		if(SFX.has(this.deathSFX))
 			SFX.get(this.deathSFX).play();
-		Exp.summon(this);
+		Exp.summon(this, this.xp);
 		data.party.add(this.name);
 		game.boss.splice(game.boss.indexOf(this));
 	}
@@ -31,7 +31,8 @@ class Boss extends Enemy{
 		}
 		return boss;
 	}
-	goTo = (x, y, s) => (this.moveTo(x, y) < s) && this.next()
+	goTo = (x, y, s) => (this.moveTo(x, y) < s) && this.next();
+	xp = 1000;
 	scale = 2;
 	spawner = 240;
 	contactSFX = false;

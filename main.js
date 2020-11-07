@@ -8,19 +8,32 @@ function main(focus=true) {
 	heros.remove(hero => !hero.alive);
 	npcs.remove(npc => !npc.alive);
 	particles.remove(particle => !particle.alive);
-	exp.forEach(xp => {
+	{
+		let amo = heros.size;
+		if(player && player.alive) ++amo;
 		var add = () => {
-			let amo = heros.size;
-			if(player && player.alive) ++amo;
-			if(player && player.alive && player.skill) ++player.skill.sk;
+			if(player && player.alive && player.skill)
+				player.skill.sk += 1/amo;
 			heros.forEach(hero => {
 				if(hero.skill) hero.skill.sk += 1/amo;
 			});
-		}
+		};
+	}
+	exp.forEach(xp => {
 		xp.update();
-		if(player && player.alive && Entity.isTouching(player, xp)) {xp.attack(player); add()}
-		heros.forEach(hero => {if(xp.alive && Entity.isTouching(hero, xp)) {xp.attack(hero); add()}});
-	});
+		if(player && player.alive && Entity.isTouching(player, xp)) {
+			xp.attack(player);
+			player.lives += 1/100;
+			game.score += xp.xp;
+			add();
+		}
+		heros.forEach(hero => {if(xp.alive && Entity.isTouching(hero, xp)) {
+			xp.attack(hero);
+			game.score += xp.xp;
+			add();
+			hero.lives += 1/100;
+		}});
+	}); 
 	enemies.forEach(enemy => {
 		enemy.update(focus);
 		if(player && player.alive && Entity.isTouching(player, enemy)) {
@@ -120,14 +133,30 @@ function main(focus=true) {
 		}
 	}
 	if(game.level > 0) {
-		if(player && !hardcore) {
-			let x = (game.x2 - game.scale * player.lives)/2;
-			for(let i = 0; i < player.lives; i++) {
-				drawShape({
-					shape: player.shape, color: player.color,
-					size: game.scale, x: x + i * game.scale, y: 0, fillAlpha: 0
-				});
+		ctx.font = `${game.scale}px Sans`;
+		ctx.fillStyle = "#ff5";
+		ctx.fillText(`Score: ${game.score}`, 0, game.scale);
+		if(player) {
+			if(!hardcore && floor(player.lives)) {
+				let x = (game.x2 - game.scale * floor(player.lives))/2;
+				for(let i = 0; i < floor(player.lives); i++) {
+					drawShape({
+						shape: player.shape, color: player.color,
+						size: game.scale, x: x + i * game.scale, y: 0, fillAlpha: 0
+					});
+				}
+			}else{
+				let text = hardcore? "Hardcore": "No lives left.";
+				ctx.fillStyle = "#a00"
+				let {width} = ctx.measureText(text);
+				ctx.fillText(text, (innerWidth - width)/2, game.scale);
 			}
+		}
+		if(speedrun) {
+			ctx.fillStyle = "white";
+			let text = toTime(speedrun++);
+			let {width} = ctx.measureText(text);
+			ctx.fillText(text, game.x2 - width, game.scale);
 		}
 	}
 	/**@type {Boss}*/
@@ -154,4 +183,34 @@ function main(focus=true) {
 	bullets.forEach(bullet => {bullet.draw()});
 	exp.forEach(xp => {xp.draw()});
 	if(dialogue.active) dialogue.draw();
+}
+function toTime(ticks) {
+	var time = ticks * game.tick;
+	var array = [1000, 60, 60, 24];
+	function* fix() {
+		for(let num of array) {
+			var i = time % num;
+			time -= i;
+			time /= num;
+			yield i;
+		}
+		yield time;
+	}
+	var numbers = fix();
+	var milli = numbers.next().value;
+	var seconds = numbers.next().value;
+	var minutes = numbers.next().value;
+	var hours = numbers.next().value;
+	var days = numbers.next().value;
+	function dual(num, len) {
+		var str = `${num}`;
+		return "0".repeat(len - str.length) + str;
+	}
+	var string = "";
+	array = [days, hours, minutes, seconds, milli];
+	for(let num of array) {
+		if(string) string = `${string}:${dual(num, num == milli? 3: 2)}`;
+		else if(num) string = num;
+	}
+	return string;
 }

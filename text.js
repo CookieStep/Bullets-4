@@ -1,4 +1,11 @@
-/**@param {string} text @param {{continued?: boolean, auto?: false}} options*/
+/**
+ * Writes the dialogue on the screen
+ * @param {string} text The text to write as the dialogue
+ * @param {string} color The color used on the text
+ * 				   		- Default is white 
+ * @param {{continued?: boolean, auto?: false}} options 
+ * @returns {Promise<function>} Returns a callback when the function is done
+ */
 function dialogue(text, color="white", options={}) {
 	var line = {
 		text, color,
@@ -9,7 +16,7 @@ function dialogue(text, color="white", options={}) {
 	dialogue.lines.push(line);
 	dialogue.active = true;
 	return {
-		/**@param {() => void} func*/
+		/**Is run when the text has been read*/
 		then(func) {line.onFinished = func}
 	}
 }
@@ -18,6 +25,7 @@ dialogue.lines = [];
 dialogue.text = "";
 dialogue.active = false;
 dialogue.idle = 0;
+/** @return {void} Void*/
 dialogue.draw = () => {
 	var line = dialogue.lines[0];
 	if(!line) {
@@ -51,6 +59,7 @@ dialogue.draw = () => {
 		ctx.fillText(line, 0, innerHeight - (lines.length - a++) * s + s/2);
 }
 dialogue.skip = " ,.!?";
+/** @return {void} Void*/
 dialogue.update = () => {
 	var touch;
 	touches.forEach(obj => {

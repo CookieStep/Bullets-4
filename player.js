@@ -29,11 +29,15 @@ class Hero extends Entity{
 		var Splayer = new what().spawn();
 		if(!player || !player.skill || !player.lives)
 			Splayer.skill = new what.weapon(Splayer);
-		else Splayer.skill = player.skill;
+		else{
+			Splayer.skill = player.skill;
+			Splayer.skill.user = Splayer;
+		}
 		if(player && player.lives)
 			Splayer.lives = player.lives;
-		Splayer.isMain = true;
 		player = new Spawner(Splayer, () => player = Splayer);
+		Splayer.isMain = true;
+		player.lives = Splayer.lives;
 		return Splayer;
 	}
 	lives = 3;
@@ -67,7 +71,7 @@ class Hero extends Entity{
 		SFX.get("Spawn").play();
 		Particle.summon(new Shockwave(this, 15 * game.scale));
 		enemies.forEach(enemy => {
-			if(Entity.distance(this, enemy) < 15 * game.scale) {
+			if(enemy.alive && Entity.distance(this, enemy) < 15 * game.scale) {
 				var radian = Entity.radianTo(this, enemy);
 				enemy.mx = this.mx + cos(radian) * game.scale * 15;
 				enemy.my = this.my + sin(radian) * game.scale * 15;
@@ -75,7 +79,7 @@ class Hero extends Entity{
 		});
 	}
 	die() {
-		if(game.level > 0 && this.lives > 0 && !hardcore) {
+		if(game.level > 0 && this.lives >= 1 && !hardcore) {
 			--this.lives;
 			this.hp = this.maxHp;
 			this.spawn();

@@ -52,6 +52,16 @@ function levelMenu() {
 	["up", "up2", "left", "left2", "right", "right2", "down", "down2"].forEach(key => {
 		if(keys.has(key)) keys.set(key, 2);
 	});
+	var text = levelMenu.hardcore? "Hardcore": "Softcore";
+	ctx.fillStyle = levelMenu.hardcore? "#d95": "#aaf"
+	ctx.font = `${s/2}px Sans`;
+	var {width} = ctx.measureText(text);
+	var x = game.x2 - width;
+	ctx.fillText(text, x, game.y2 - s/4);
+	if(touch && touch.x > x && touch.x < x + width && touch.y > game.y2 - s * 3/4) {
+		levelMenu.hardcore = !levelMenu.hardcore;
+		touch.used = true;
+	}
 	if(level.hasNew) {
 		let i = tick % 20;
 		i = abs(i - 10)/5 + 3;
@@ -76,7 +86,7 @@ function levelMenu() {
 		i = abs(i - 10)/5 + 3;
 		let a = s/i;
 		ctx.fillStyle = "yellow";
-		ctx.font = `${a}px Sans`
+		ctx.font = `${a}px Sans`;
 		let text = "New level";
 		let w2 = ctx.measureText(text).width;
 		let x = (innerWidth - width)/2 - s/2;
@@ -96,12 +106,22 @@ function levelMenu() {
 	if(touch) touch.used = true;
 	ctx.fillStyle = level.color;
 	ctx.font = `${s/2}px Sans`;
-	for(let l = 0; l < level.desc.length; l++) {
-		var text = level.desc[l];
-		if(text == "") ctx.fillStyle = level.color2;
-		var y = s * (5.5 + l/2);
-		var {width} = ctx.measureText(text);
-		ctx.fillText(text, (innerWidth - width)/2, y);
+	for(let l = -1; l < level.desc.length; l++) {
+		var y = s * (6 + l/2);
+		if(l != -1) {
+			var text = level.desc[l];
+			if(text == "") ctx.fillStyle = level.color2;
+			var {width} = ctx.measureText(text);
+			ctx.fillText(text, (innerWidth - width)/2, y);
+		}else if(levelMenu.active == 1) {
+			text = level.difficulty.text;
+			ctx.font = `${s/2}px Arial`;
+			ctx.fillStyle = level.difficulty.color;
+			var {width} = ctx.measureText(text);
+			ctx.fillText(text, (innerWidth - width)/2, y);
+			ctx.fillStyle = level.color;
+			ctx.font = `${s/2}px Sans`;
+		}
 	}
 }
 /**@this {levelMenu}*/
@@ -112,7 +132,17 @@ levelMenu.setup = function() {
 		this.selected = 0;
 	this.selectedList = [];
 	this.partyList = [];
-	this.items2 = [...this.items];
+	this.items2 = [];
+	for(let level of this.items) {
+		if("req" in level) {
+			let cont;
+			level.req.forEach(id => {
+				if(cont || !data.clearedIds[id]) cont = true;
+			});
+			if(cont) continue;
+		}
+		this.items2.push(level);
+	}
 	this.create();
 };
 /**@this {levelMenu}*/
@@ -133,8 +163,8 @@ levelMenu.startLevel = function() {
 			this.partyList.push(name);
 		}
 	}else this.selectedList.push(this.selected);
-	if(this.selectedList[0] != 0 && this.active <= data.party.size) {
-		this.selected = 0;
+	if(this.selectedList[0] != 0 && this.active <= data.party.size && data.party.size > 1) {
+		if(this.active == 1) this.selected = 0;
 		++this.active;
 		this.items2 = [];
 		this.options = [];
@@ -168,26 +198,30 @@ levelMenu.startLevel = function() {
 	game.party = [this.selectedList[2], this.selectedList[3]];
 	reset();
 	keys.clear();
+	hardcore = levelMenu.hardcore;
 	player = undefined;
 	clearBad();
-	this.active = false;
+	this.active = 0;
 	onresize();
 };
 /**@this {levelMenu}*/
-levelMenu.create = function() {
+levelMenu.create = function(clear=true) {
 	game.reset();
 	enemies.clear();
 	npcs.clear();
 	particles.clear();
-	exp.clear();
-	bullets.clear();
-	heros.clear();
+	if(clear) {
+		exp.clear();
+		bullets.clear();
+		heros.clear();
+	}
 	Music.forEach(bgm => bgm.stop());
 	var level = this.items2[this.selected];
 	if(!level && this.active) {
 		--this.active;
 		if(!this.active) this.stop();
 		else{
+			speedrun = 0;
 			this.items2 = this.items;
 			this.selected = 0;
 			this.selectedList = [];
@@ -222,6 +256,7 @@ levelMenu.create = function() {
 			else ++level.hasNew;
 		});
 		Enemy.summonBulk(...list);
+		if(!enemies.size) break;
 	}
 	if(level.boss) level.boss.forEach(boss => boss.summonBulk(new boss));
 	backgroundName = level.background.name;
@@ -250,7 +285,7 @@ levelMenu.create = function() {
 		difficulty: Easy,
 		id: 0
 	}, {
-		name: "Level 1",
+		name: "The Arena",
 		color: "#fa5",
 		desc: ["This is where your true journey begins."],
 		enemies: [Chill, GoGo, Underbox, Corner],
@@ -272,6 +307,7 @@ levelMenu.create = function() {
 			name: "level-1",
 			color: "#0005"
 		},
+		req: [1],
 		id: 2
 	}];
 }

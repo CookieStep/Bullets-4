@@ -13,7 +13,7 @@ class Enemy extends Entity{
 	}
 	die() {
 		super.die();
-		Exp.summon(this);
+		Exp.summon(this, this.xp);
 		data.catalog.add(this.name);
 	}
 	deathSFX = "Hit";
@@ -34,13 +34,22 @@ class Enemy extends Entity{
 }
 class Chill extends Enemy{
 	name = "Chill";
-	description = ["Does nothing.", `"He's pretty chill"`];
+	description = [
+		"Does nothing.",
+		`"He's pretty chill"`
+	];
+	xp = 10;
 	color = "#fa5";
 	shape = "square2";
 }
 class GoGo extends Enemy{
 	name = "Go-go";
-	description = ["Litterally just moves.", `"Doesn't care where it's going`, `As long as it's going somewhere!"`]
+	description = [
+		"Litterally just moves.",
+		`"Doesn't care where it's going`,
+		`As long as it's going somewhere!"`
+	];
+	xp = 20;
 	tick() {
 		var {x, y} = this.velocity;
 		if(x || y) this.move(this.rotation);
@@ -56,7 +65,12 @@ class GoGo extends Enemy{
 class Underbox extends GoGo{
 	name = "Underbox";
 	ancestor = "Go-go";
-	description = ["Picks a direction", "Does not sway from it's decision.", `"Filled with DETERMINATION"`];
+	description = [
+		"Picks a direction",
+		"Does not sway from it's decision.",
+		`"Filled with DETERMINATION"`
+	];
+	xp = 25;
 	tick() {
 		if(this.target) this.move(this.rotation2);
 		else{
@@ -83,6 +97,7 @@ class Underbox extends GoGo{
 class Corner extends Enemy{
 	name = "Edge lord";
 	description = ["Goes from corner to corner", `"Is always on edge."`];
+	xp = 15;
 	pickLocation() {
 		var {
 			x: gx=0,

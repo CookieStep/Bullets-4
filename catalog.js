@@ -47,6 +47,11 @@ var catalog = {
 	run() {
 		ctx.fillStyle = "#000";
 		ctx.fillRect(0, 0, game.x2, game.y2);
+		var touch;
+		touches.forEach(obj => {
+			if(!obj.end && !obj.used && !touch) touch = obj;
+		});
+		var hit;
 		if(this.selected != this.list.length) {
 			/**@type {Enemy}*/
 			var entity = heros.get(BigInt(this.selected));
@@ -82,9 +87,9 @@ var catalog = {
 				hero.hp = hero.maxHp;
 				hero.spawn();
 			}else if(touch) {
-				if(touch.x > hero.x && touch.x < hero.x + hero.size && touch.y > hero.y && touch.y < hero.y + hero.size) {
+				if(touch.x > hero.x - this.mx && touch.x < hero.x - this.mx + hero.size && touch.y > hero.y - this.my && touch.y < hero.y - this.my + hero.size) {
 					this.selected = id;
-					touch.used = true;
+					hit = true;
 				}
 			}
 			++id;
@@ -94,9 +99,9 @@ var catalog = {
 				enemy.hp = enemy.maxHp;
 				enemy.spawn();
 			}else if(touch) {
-				if(touch.x > enemy.x && touch.x < enemy.x + enemy.size && touch.y > enemy.y && touch.y < enemy.y + enemy.size) {
+				if(touch.x > enemy.x - this.mx && touch.x < enemy.x - this.mx + enemy.size && touch.y > enemy.y - this.my && touch.y < enemy.y - this.my + enemy.size) {
 					this.selected = id;
-					touch.used = true;
+					hit = true;
 				}
 			}
 			++id;
@@ -173,11 +178,6 @@ var catalog = {
 			if(keys.has(key)) keys.set(key, 2);
 		});
 		this.selected = (this.selected + this.list.length + 1) % (this.list.length + 1);
-		var touch;
-		touches.forEach(obj => {
-			if(!obj.end && !obj.used && !touch) touch = obj;
-		});
-		var hit;
 		var s = game.scale * 2;
 		this.list.forEach((enemy, i) => {
 			i = +i;
