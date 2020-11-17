@@ -21,7 +21,7 @@ class Entity{
 	shape2 = "";
 	get size() {return game.scale * this.scale}
 	scale = 1;
-	spd = 0.015;
+	spd = 0.01;
 	/**when hit wall?*/
 	onWall = BOUNCE;
 	/**The actual Hp value*/

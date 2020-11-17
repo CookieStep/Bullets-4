@@ -6,7 +6,7 @@ class Exp extends Entity{
 	}
 	r = random(PI);
 	rspd = random(PI/16, PI/-16);
-	spd = 0.075;
+	spd = 0.05;
 	deathSFX = "Xp";
 	tick() {
 		var {player} = this;

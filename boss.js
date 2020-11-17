@@ -39,7 +39,7 @@ class Boss extends Enemy{
 	contactSFX = false;
 	knockRes = 0;
 	knockback = 2;
-	spd = 0.0075;
+	spd = 0.005;
 }
 class TheSummoner extends Boss{
 	name = "Summoner";

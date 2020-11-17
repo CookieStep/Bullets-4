@@ -1,7 +1,7 @@
 class Bullet extends Entity{
 	/**@param {Entity} parent @param {number} rad*/
 	scale = 1/4;
-	spd = 0.075;
+	spd = 0.05;
 	knockback = 2;
 	constructor(parent, rad) {
 		super(parent);
