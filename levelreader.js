@@ -51,6 +51,7 @@ class levelPhase{
 class levelPart{
 	/**@param {{
 	 * 	wait?: number
+	 * 	delay?: number
 	 * 	dialogue?: {
 	 * 		text: string
 	 * 		color: string
@@ -78,6 +79,7 @@ class levelPart{
 	constructor(options) {
 		var {
 			wait=0,
+			delay=0,
 			dialogue=[],
 			summons,
 			script,
@@ -96,6 +98,7 @@ class levelPart{
 			levelComplete
 		} = options;
 		this.wait = wait;
+		this.delay = delay;
 		this.dialogue = dialogue;
 		this.summons = summons;
 		this.script = script;
@@ -113,6 +116,10 @@ class levelPart{
 		this.waitUntilClear = waitUntilClear;
 		this.levelComplete = levelComplete;
 		this.time = 0;
+		if((scoreAttack || speedrun) && this.mainMenu) {
+			this.mainMenu = false;
+			this.nextLevel = true;
+		}
 	}
 	resetSummons() {
 		if(this.summons) this.summons.forEach(value => value.summoned = 0);
@@ -132,17 +139,25 @@ class levelPart{
 					level.next();
 				break;
 				case "nextLevel":
-					++game.level;
-					levelMenu.selected = game.level;
-					levelMenu.items2 = [...levelMenu.items];
-					levelMenu.create(false);
-					clearBad();
+					nextLevel();
 				break;
+			}
+		}
+		function nextLevel() {
+			++game.level;
+			levelMenu.selected = game.level;
+			levelMenu.items2 = [...levelMenu.items];
+			if(levelMenu.selected in levelMenu.items2) {
+				levelMenu.create(false);
+				clearBad();
+			}else{
+				levels = [];
+				mainMenu.setup();
 			}
 		}
 		var part = this;
 		var canEnd = true;
-		if(speedrun || this.wait < this.time) {
+		if((speedrun || this.wait < this.time) && this.delay < this.time) {
 			if(this.summons) this.summons.forEach(value => {
 				var {what, amount=1, params=[]} = value;
 				if(!("summoned" in value)) value.summoned = 0;
@@ -188,6 +203,7 @@ class levelPart{
 				if(this.phasePause) phase.paused = true;
 				if(this.levelPause) level.paused = true;
 				if(this.levelComplete) data.clearedIds[game.levelId] = true;
+				if(this.nextLevel) nextLevel();
 				if(this.mainMenu) {
 					levels = [];
 					mainMenu.setup();

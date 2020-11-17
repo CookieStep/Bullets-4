@@ -23,7 +23,10 @@ var catalog = {
 		["Underbox", Underbox],
 		["Edge lord", Corner],
 		["Shooter", Player],
-		["Summoner", Summoner]
+		["Summoner", Summoner],
+		["Looper", Looper],
+		["Swerve", Swerve],
+		["Around", Around]
 	]),
 	setup() {
 		this.active = true;
@@ -45,8 +48,8 @@ var catalog = {
 	},
 	screen() {game.x = game.scale * 2},
 	run() {
-		ctx.fillStyle = "#000";
-		ctx.fillRect(0, 0, game.x2, game.y2);
+		ctx.fillStyle = "#0005";
+		ctx.fillRect(0, 0, innerWidth, innerHeight);
 		var touch;
 		touches.forEach(obj => {
 			if(!obj.end && !obj.used && !touch) touch = obj;
@@ -63,6 +66,8 @@ var catalog = {
 			mx = 0;
 			my = 0;
 		}
+		this.ox = this.mx;
+		this.oy = this.my;
 		{
 			let a = this.mx - mx,
 				b = this.my - my;
@@ -80,7 +85,8 @@ var catalog = {
 		}
 		ctx.translate(-this.mx, -this.my);
 		bctx.translate(-this.mx, -this.my);
-		main();
+		ctx.drawImage(foreground, this.ox, this.oy);
+		this.main();
 		var id = 0;
 		heros.forEach(hero => {
 			if(!hero.alive) {
@@ -113,8 +119,6 @@ var catalog = {
 				++del;
 			}
 		});
-		ctx.fillStyle = "#000";
-		ctx.fillRect(0, 0, game.x, game.y2);
 		ctx.lineWidth = 5;
 		ctx.strokeStyle = "white";
 		ctx.strokeRect(game.x, 0, game.x2 - game.x, game.y2);
@@ -216,5 +220,121 @@ var catalog = {
 			Music.get("Catalog").stop();
 			mainMenu.setup();
 		}
+	},
+	main() {
+		exp.remove(xp => !xp.alive);
+		bullets.remove(bullet => !bullet.alive);
+		particles.remove(particle => !particle.alive);
+		exp.forEach(xp => {
+			xp.update();
+			heros.forEach(hero => {if(xp.alive && Entity.isTouching(hero, xp)) {
+				xp.attack(hero);
+				game.score += xp.xp;
+				if(hero.skill) ++hero.skill.sk;
+				hero.lives += 1/100;
+			}});
+		}); 
+		enemies.forEach(enemy => {
+			enemy.update(focus);
+			if(player && player.alive && Entity.isTouching(player, enemy)) {
+				Entity.collide(player, enemy, focus);
+				player.attack(enemy);
+				enemy.attack(player);
+			}
+			heros.forEach(hero => {
+				if(enemy.alive && Entity.isTouching(enemy, hero)) {
+					Entity.collide(hero, enemy, focus);
+					hero.attack(enemy);
+					enemy.attack(hero);
+				}
+			});
+			bullets.forEach(bullet => {
+				if(enemy.alive && Entity.isTouching(enemy, bullet)) {
+					Entity.collide(bullet, enemy, focus);
+					bullet.attack(enemy);
+					enemy.attack(bullet);
+				}
+			});
+		});
+		bullets.forEach(bullet => {bullet.update(focus)});
+		heros.forEach(hero => {hero.update()});
+		npcs.forEach(npc => {
+			npc.update();
+			if(player && player.alive && Entity.isTouching(npc, player))
+				Entity.collide(npc, player, focus);
+			enemies.forEach(enemy => {
+				if(Entity.isTouching(enemy, npc))
+					Entity.collide(npc, enemy, focus);
+			});
+			heros.forEach(hero => {
+				if(Entity.isTouching(hero, npc))
+					Entity.collide(npc, hero, focus);
+			});
+			bullets.forEach(bullet => {
+				if(Entity.isTouching(bullet, npc))
+					Entity.collide(npc, bullet, focus);
+			});
+		});
+		particles.forEach(particle => {particle.update()});
+		{let enemiesArray = enemies.asArray();
+			for(let a = 0; a < enemiesArray.length; a++) for(let b = a + 1; b < enemiesArray.length; b++) {
+				let enemy = enemiesArray[a], enemy2 = enemiesArray[b];
+				if(Entity.isTouching(enemy, enemy2))
+					Entity.collide(enemy, enemy2, focus);
+			}
+		}
+		{let bulletsArray = bullets.asArray();
+			for(let a = 0; a < bulletsArray.length; a++) for(let b = a + 1; b < bulletsArray.length; b++) {
+				let bullet = bulletsArray[a], bullet2 = bulletsArray[b];
+				if(Entity.isTouching(bullet, bullet2))
+					Entity.collide(bullet, bullet2, focus);
+			}
+		}
+		{
+			ctx.globalCompositeOperation = "destination-out";
+			ctx.fillStyle = "#fff5";
+			bctx.fillStyle = backgroundColor;
+			ctx.fillRect(0, 0, innerWidth, innerHeight);
+			bctx.fillRect(game.x, game.y, game.x2, game.y2);
+			ctx.globalCompositeOperation = "source-over";
+			let w = game.x2 - game.x,
+				h = game.y2 - game.y;
+			let w2 = ceil(w/game.scale) * game.scale,
+				h2 = ceil(h/game.scale) * game.scale;
+			let back = backgrounds.get(backgroundName);
+			if(back) {
+				bctx.drawImage(back, 0, 0);
+			}else{
+				let backGen = bckdrpGen.get(backgroundName);
+				if(backGen) {
+					let back = backGen(w2, h2);
+					let canvas = document.createElement("canvas"),
+						ctx = canvas.getContext("2d");
+					assign(canvas, {
+						width: innerWidth,
+						height: innerHeight
+					});
+					//back.update();
+					ctx.save();
+					ctx.beginPath();
+					let path = new Path2D;
+					path.addPath(back, Matrix(back.scale, back.scale, (w - w2)/2 + game.x, (h - h2)/2 + game.y));
+					ctx.strokeStyle = back.stroke;
+					ctx.fillStyle = back.fill;
+					ctx.fill(path);
+					ctx.stroke(path);
+					backgrounds.set(backgroundName, canvas);
+				}
+			}
+		}
+		bctx.fillStyle = "#000";
+		bctx.fillRect(0, 0, game.x, game.y2);
+		++tick;
+		particles.forEach(particle => {particle.draw()});
+		heros.forEach(hero => {hero.draw()});
+		enemies.forEach(enemy => enemy.draw());
+		npcs.forEach(npc => {npc.draw()});
+		bullets.forEach(bullet => {bullet.draw()});
+		exp.forEach(xp => {xp.draw()});
 	}
 }

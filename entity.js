@@ -31,12 +31,12 @@ class Entity{
 	/**Damage dealt on contact*/
 	atk = 1;
 	/**@param {Entity} attacker*/
-	attack(attacker) {
+	attack(attacker, focus) {
 		this.hp -= attacker.atk;
-		if(!this.alive) this.die();
+		if(!this.alive) this.die(focus);
 	}
-	die() {
-		if(SFX.has(this.deathSFX)) SFX.get(this.deathSFX).play();
+	die(focus) {
+		if(focus && SFX.has(this.deathSFX)) SFX.get(this.deathSFX).play();
 	}
 	/**Plays when this entity dies
 	 * @type {string}*/
@@ -44,7 +44,7 @@ class Entity{
 	get alive() {return this.hp > 0}
 	update(focus) {
 		if(this.skill) this.skill.update();
-		this.tick();
+		this.tick(focus);
 		this.forces();
 		this.screenlock(focus);
 	}

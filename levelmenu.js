@@ -126,8 +126,10 @@ function levelMenu() {
 }
 /**@this {levelMenu}*/
 levelMenu.setup = function() {
-	onresize();
 	this.active = 1;
+	delete this.options;
+	delete this.options2;
+	onresize();
 	if(!("selected" in this))
 		this.selected = 0;
 	this.selectedList = [];
@@ -163,15 +165,26 @@ levelMenu.startLevel = function() {
 			this.partyList.push(name);
 		}
 	}else this.selectedList.push(this.selected);
-	if(this.selectedList[0] != 0 && this.active <= data.party.size && data.party.size > 1) {
+	if(this.selectedList[0] != 0 && this.active <= data.party.size) {
 		if(this.active == 1) this.selected = 0;
 		++this.active;
 		this.items2 = [];
 		this.options = [];
 		this.options2 = [];
 		let i = 0;
+		let items2 = [];
+		for(let level of this.items) {
+			if("req" in level) {
+				let cont;
+				level.req.forEach(id => {
+					if(cont || !data.clearedIds[id]) cont = true;
+				});
+				if(cont) continue;
+			}
+			items2.push(level);
+		}
 		data.party.forEach(name => {
-			let obj = assign({}, this.items[this.selectedList[0]]);
+			let obj = assign({}, items2[this.selectedList[0]]);
 			obj.hero = catalog.converter.get(name);
 			this.options.push(obj.hero);
 			let hero = new obj.hero;
@@ -193,7 +206,18 @@ levelMenu.startLevel = function() {
 		});
 		this.create();
 	return}
-	game.level = this.selectedList[0];
+	let items2 = [];
+	for(let level of this.items) {
+		if("req" in level) {
+			let cont;
+			level.req.forEach(id => {
+				if(cont || !data.clearedIds[id]) cont = true;
+			});
+			if(cont) continue;
+		}
+		items2.push(level);
+	}
+	game.level = this.items.indexOf(items2[this.selectedList[0]]);
 	game.hero = this.selectedList[1];
 	game.party = [this.selectedList[2], this.selectedList[3]];
 	reset();
@@ -222,7 +246,18 @@ levelMenu.create = function(clear=true) {
 		if(!this.active) this.stop();
 		else{
 			speedrun = 0;
-			this.items2 = this.items;
+			scoreAttack = false;
+			this.items2 = [];
+			for(let level of this.items) {
+				if("req" in level) {
+					let cont;
+					level.req.forEach(id => {
+						if(cont || !data.clearedIds[id]) cont = true;
+					});
+					if(cont) continue;
+				}
+				this.items2.push(level);
+			}
 			this.selected = 0;
 			this.selectedList = [];
 			this.partyList = [];
@@ -309,5 +344,17 @@ levelMenu.create = function(clear=true) {
 		},
 		req: [1],
 		id: 2
+	}, {
+		name: "The Curve",
+		color: "#f5f",
+		desc: ["The swim team's bold return.", "I hope your ready."],
+		enemies: [Swerve, Looper, Around],
+		music: "Level-2",
+		background: {
+			name: "level-2",
+			color: "#0005"
+		},
+		difficulty: Normal,
+		id: 3
 	}];
 }

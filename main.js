@@ -1,7 +1,7 @@
 function main(focus=true) {
 	runLevel(game.level);
 	if(dialogue.active) dialogue.update();
-	if(player && player.alive) player.update();
+	if(player && player.alive) player.update(focus);
 	enemies.remove(enemy => !enemy.alive);
 	exp.remove(xp => !xp.alive);
 	bullets.remove(bullet => !bullet.alive);
@@ -22,13 +22,13 @@ function main(focus=true) {
 	exp.forEach(xp => {
 		xp.update();
 		if(player && player.alive && Entity.isTouching(player, xp)) {
-			xp.attack(player);
+			xp.attack(player, focus);
 			player.lives += 1/100;
 			game.score += xp.xp;
 			add();
 		}
 		heros.forEach(hero => {if(xp.alive && Entity.isTouching(hero, xp)) {
-			xp.attack(hero);
+			xp.attack(hero, focus);
 			game.score += xp.xp;
 			add();
 			hero.lives += 1/100;
@@ -38,26 +38,26 @@ function main(focus=true) {
 		enemy.update(focus);
 		if(player && player.alive && Entity.isTouching(player, enemy)) {
 			Entity.collide(player, enemy, focus);
-			player.attack(enemy);
-			enemy.attack(player);
+			player.attack(enemy, focus);
+			enemy.attack(player, focus);
 		}
 		heros.forEach(hero => {
 			if(enemy.alive && Entity.isTouching(enemy, hero)) {
 				Entity.collide(hero, enemy, focus);
-				hero.attack(enemy);
-				enemy.attack(hero);
+				hero.attack(enemy, focus);
+				enemy.attack(hero, focus);
 			}
 		});
 		bullets.forEach(bullet => {
 			if(enemy.alive && Entity.isTouching(enemy, bullet)) {
 				Entity.collide(bullet, enemy, focus);
-				bullet.attack(enemy);
-				enemy.attack(bullet);
+				bullet.attack(enemy, focus);
+				enemy.attack(bullet, focus);
 			}
 		});
 	});
 	bullets.forEach(bullet => {bullet.update(focus)});
-	heros.forEach(hero => {hero.update()});
+	heros.forEach(hero => {hero.update(focus)});
 	npcs.forEach(npc => {
 		npc.update();
 		if(player && player.alive && Entity.isTouching(npc, player))
@@ -94,7 +94,7 @@ function main(focus=true) {
 	ctx.fillStyle = "#fff5";
 	bctx.fillStyle = backgroundColor;
 	ctx.fillRect(0, 0, innerWidth, innerHeight);
-	bctx.fillRect(0, 0, innerWidth, innerHeight);
+	bctx.fillRect(game.x, game.y, game.x2, game.y2);
 	ctx.globalCompositeOperation = "source-over";
 	if(++tick % 25 == 0) {
 		let imageData = ctx.getImageData(0, 0, innerHeight, innerWidth);

@@ -12,15 +12,16 @@ class Boss extends Enemy{
 		if(this.currentPhase)
 			this.currentPhase();
 	}
-	attack(enemy) {
-		super.attack(enemy);
+	attack(enemy, focus) {
+		super.attack(enemy, focus);
 		Exp.summon(this, 0);
 	}
-	die() {
-		if(SFX.has(this.deathSFX))
+	die(focus) {
+		if(focus && SFX.has(this.deathSFX))
 			SFX.get(this.deathSFX).play();
 		Exp.summon(this, this.xp);
-		data.party.add(this.name);
+		if(catalog.converter.has(this.name))
+			data.party.add(this.name);
 		game.boss.splice(game.boss.indexOf(this));
 	}
 	static summon(boss, x, y) {
@@ -78,6 +79,7 @@ class TheSummoner extends Boss{
 			if(enemy) {
 				enemy.color = this.color;
 				enemy.color2 = this.color2;
+				enemy.xp = 0;
 				++this.summons;
 			}
 			return enemy

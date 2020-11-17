@@ -65,8 +65,7 @@ var exp = new Collection;
 var particles = new Collection;
 /**@type {Collection<Npc>}*/
 var npcs = new Collection;
-var hardcore;
-var speedrun;
+var hardcore, speedrun, scoreAttack;
 var game = {
 	//921600 => 40
 	scale: 40,

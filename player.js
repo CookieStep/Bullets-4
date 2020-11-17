@@ -1,12 +1,12 @@
 class Hero extends Entity{
-	tick() {
+	tick(focus) {
 		if(this.isMain) {
-			this.keys();
-			this.touchv2();
-		}else this.ai();
+			this.keys(focus);
+			this.touchv2(focus);
+		}else this.ai(focus);
 	}
 	prepare() {this.skill.sk = 0}
-	keys() {
+	keys(focus) {
 		//wasd
 		this.velocity.x += this.size * this.spd * (keys.has("right") - keys.has("left"));
 		this.velocity.y += this.size * this.spd * (keys.has("down") - keys.has("up"));
@@ -17,12 +17,70 @@ class Hero extends Entity{
 		if(keys.has("down2")) y++;
 		if(keys.has("up2")) y--;
 		this.skl = Boolean(x || y);
-		if(this.skill && (x || y)) this.skill.directional(x, y);
-		else if(this.skill && (keys.get("secondary") == 1 || keys.get("secondary") == 3)) this.skill.secondary();
+		if(this.skill && (x || y)) this.skill.directional(x, y, focus);
+		else if(this.skill && (keys.get("secondary") == 1 || keys.get("secondary") == 3)) this.skill.secondary(focus);
 		if(keys.has("secondary")) keys.set("secondary", 2);
 		["up", "left", "right", "down"].forEach(key => {
 			if(keys.has(key)) this.moved = true;
 		});
+	}
+	/**React to pressed keys*/
+	touchv2(focus) {
+		var {touch, touch2} = this;
+		if(touch && touch.end) touch = false;
+		if(!touch && !this.moved) touches.forEach(obj => {
+			if(obj.sx < innerWidth/2 && obj != touch2 && !obj.end && Date.now() - game.tick * 5 > obj.start) {
+				touch = obj;
+			}
+		});
+		if(!touch2 && !this.skl) touches.forEach(obj => {
+			if(obj.sx > innerWidth/2 && obj != touch && !obj.end) {
+				touch2 = obj;
+			}
+		});
+		if(touch && !this.moved) {
+			this.move(radian(touch.x - touch.sx, touch.y - touch.sy));
+			this.touch = touch;
+			drawShape({
+				x: touch.sx - game.scale/4,
+				y: touch.sy - game.scale/4,
+				size: game.scale/2,
+				color: this.color,
+				shape: "circle"
+			});
+			ctx.lineWidth = game.scale/4;
+			ctx.beginPath();
+			ctx.strokeStyle = this.color;
+			ctx.moveTo(touch.sx, touch.sy);
+			ctx.lineTo(touch.x, touch.y);
+			ctx.moveTo(this.mx, this.my);
+			ctx.lineTo(this.mx + touch.x - touch.sx, this.my + touch.y - touch.sy);
+			ctx.stroke();
+		}
+		if(touch2 && !this.skl) {
+			this.touch2 = touch2;
+			if(this.skill && touch2.end) {
+				if(Date.now() - game.tick * 5 > touch2.start)
+					this.skill.directional(touch2.x - touch2.sx, touch2.y - touch2.sy, focus);
+				else this.skill.secondary(focus);
+			}
+			if(touch2.end) delete this.touch2;
+			drawShape({
+				x: touch2.sx - game.scale/4,
+				y: touch2.sy - game.scale/4,
+				size: game.scale/2,
+				color: this.color2,
+				shape: "circle"
+			});
+			ctx.lineWidth = game.scale/4;
+			ctx.beginPath();
+			ctx.strokeStyle = this.color2;
+			ctx.moveTo(touch2.sx, touch2.sy);
+			ctx.lineTo(touch2.x, touch2.y);
+			ctx.moveTo(this.mx, this.my);
+			ctx.lineTo(this.mx + touch2.x - touch2.sx, this.my + touch2.y - touch2.sy);
+			ctx.stroke();
+		}
 	}
 	ai() {}
 	static summon(what) {
@@ -71,84 +129,27 @@ class Hero extends Entity{
 		SFX.get("Spawn").play();
 		Particle.summon(new Shockwave(this, 15 * game.scale));
 		enemies.forEach(enemy => {
-			if(enemy.alive && Entity.distance(this, enemy) < 15 * game.scale) {
+			if(enemy.alive && Entity.distance(this, enemy) < 10 * game.scale) {
 				var radian = Entity.radianTo(this, enemy);
-				enemy.mx = this.mx + cos(radian) * game.scale * 15;
-				enemy.my = this.my + sin(radian) * game.scale * 15;
+				enemy.mx = this.mx + cos(radian) * game.scale * 10;
+				enemy.my = this.my + sin(radian) * game.scale * 10;
 			}
 		});
 	}
-	die() {
+	die(focus) {
 		if(game.level > 0 && this.lives >= 1 && !hardcore) {
 			--this.lives;
 			this.hp = this.maxHp;
 			this.spawn();
-		}
+		}else if(focus && SFX.has(this.deathSFX))
+			SFX.get(this.deathSFX).play();
 	}
 }
 class Player extends Hero{
 	spd = 0.02;
 	name = "Shooter";
 	description = ["The basic player.", `"Has the gun, Does the shoot"`];
-	/**React to pressed keys*/
-	touchv2() {
-		var {touch, touch2} = this;
-		if(touch && touch.end) touch = false;
-		if(!touch && !this.moved) touches.forEach(obj => {
-			if(obj.sx < innerWidth/2 && obj != touch2 && !obj.end && Date.now() - game.tick * 5 > obj.start) {
-				touch = obj;
-			}
-		});
-		if(!touch2 && !this.skl) touches.forEach(obj => {
-			if(obj.sx > innerWidth/2 && obj != touch && !obj.end) {
-				touch2 = obj;
-			}
-		});
-		if(touch && !this.moved) {
-			this.move(radian(touch.x - touch.sx, touch.y - touch.sy));
-			this.touch = touch;
-			drawShape({
-				x: touch.sx - game.scale/4,
-				y: touch.sy - game.scale/4,
-				size: game.scale/2,
-				color: this.color,
-				shape: "circle"
-			});
-			ctx.lineWidth = game.scale/4;
-			ctx.beginPath();
-			ctx.strokeStyle = this.color;
-			ctx.moveTo(touch.sx, touch.sy);
-			ctx.lineTo(touch.x, touch.y);
-			ctx.moveTo(this.mx, this.my);
-			ctx.lineTo(this.mx + touch.x - touch.sx, this.my + touch.y - touch.sy);
-			ctx.stroke();
-		}
-		if(touch2 && !this.skl) {
-			this.touch2 = touch2;
-			if(this.skill && touch2.end) {
-				if(Date.now() - game.tick * 5 > touch2.start)
-					this.skill.directional(touch2.x - touch2.sx, touch2.y - touch2.sy);
-				else this.skill.secondary();
-			}
-			if(touch2.end) delete this.touch2;
-			drawShape({
-				x: touch2.sx - game.scale/4,
-				y: touch2.sy - game.scale/4,
-				size: game.scale/2,
-				color: this.color2,
-				shape: "circle"
-			});
-			ctx.lineWidth = game.scale/4;
-			ctx.beginPath();
-			ctx.strokeStyle = this.color2;
-			ctx.moveTo(touch2.sx, touch2.sy);
-			ctx.lineTo(touch2.x, touch2.y);
-			ctx.moveTo(this.mx, this.my);
-			ctx.lineTo(this.mx + touch2.x - touch2.sx, this.my + touch2.y - touch2.sy);
-			ctx.stroke();
-		}
-	}
-	ai() {
+	ai(focus) {
 		/**@type {Enemy[]}*/
 		var arr = enemies.asArray();
 		var arr2 = exp.asArray();
@@ -162,14 +163,14 @@ class Player extends Hero{
 			var dis = Entity.distance(this, enemy)/game.scale;
 			if(dis < 2.5) {
 				this.runFrom(enemy);
-				this.skill.secondary();
+				this.skill.secondary(focus);
 			}else if(dis < 5) this.runFrom(enemy);
-			if(dis < 10) this.shoot(enemy);
+			if(dis < 10) this.shoot(enemy, focus);
 			else if(xp) colXp = true;
 		}else if(xp) colXp = true;
 		if(colXp) this.moveTo(xp);
 	}
-	shoot(enemy) {
+	shoot(enemy, focus) {
 		var start = {x: this.mx, y: this.my};
 		var spd = game.scale/6;
 		var target = {x: enemy.mx, y: enemy.my};
@@ -182,7 +183,7 @@ class Player extends Hero{
 		if(i < 250) {
 			var x = tx - start.x;
 			var y = ty - start.y;
-			this.skill.directional(x, y);
+			this.skill.directional(x, y, focus);
 		}
 	}
 	static weapon = Gun;
@@ -198,7 +199,7 @@ class Player extends Hero{
 	get size2() {return this.size/2}
 }
 class Summoner extends Player{
-	ai() {
+	ai(focus) {
 		/**@type {Enemy[]}*/
 		var arr = enemies.asArray();
 		var arr2 = exp.asArray();
@@ -214,15 +215,15 @@ class Summoner extends Player{
 			var y = enemy.my - this.my + dis * enemy.velocity.y/0.075;
 			if(dis < 5) {
 				this.skill.select(2);
-				this.skill.directional(x, y);
+				this.skill.directional(x, y, focus);
 				this.runFrom(enemy);
 			}else if(dis < 10) {
 				this.skill.select(0);
-				this.skill.directional(x, y);
+				this.skill.directional(x, y, focus);
 				this.runFrom(enemy);
 			}else if(dis < 15) {
 				this.skill.select(1);
-				this.skill.directional(x, y);
+				this.skill.directional(x, y, focus);
 			}else if(xp) colXp = true;
 		}else if(xp) colXp = true;
 		if(colXp) this.moveTo(xp);

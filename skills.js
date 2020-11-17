@@ -4,8 +4,8 @@ class Skill{
 	update() {}
 	/**Arrow Keys
 	 * @param {number} x @param {number} y*/
-	directional(x, y) {}
-	secondary() {}
+	directional(x, y, focus) {}
+	secondary(focus) {}
 	draw() {
 		var a = floor(this.sk/this.rsk);
 		if(a <= 0) return;
@@ -33,7 +33,7 @@ class Skill{
 class Gun extends Skill{
 	/**Arrow Keys
 	 * @param {number} x @param {number} y*/
-	directional(x, y) {
+	directional(x, y, focus) {
 		if(this.sk < this.rsk) return;
 		if(this.lastShot) return;
 		var {user} = this;
@@ -46,9 +46,9 @@ class Gun extends Skill{
 		bullet.x += user.size * x/2;
 		bullet.y += user.size * y/2;
 		bullets.push(bullet);
-		SFX.get(this.sound).play();
+		if(focus) SFX.get(this.sound).play();
 	}
-	secondary() {
+	secondary(focus) {
 		if(this.sk < this.rsk) return;
 		if(this.lastShot) return;
 		var {user} = this;
@@ -63,9 +63,9 @@ class Gun extends Skill{
 			let y = sin(rad);
 			bullet.x += user.size * x/2;
 			bullet.y += user.size * y/2;
-			SFX.get(this.sound).play();
 			bullets.push(bullet);
 		}
+		if(focus) SFX.get(this.sound).play();
 	}
 	update() {
 		if(this.lastShot) this.lastShot--;

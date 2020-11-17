@@ -14,7 +14,8 @@ class Enemy extends Entity{
 	die() {
 		super.die();
 		Exp.summon(this, this.xp);
-		data.catalog.add(this.name);
+		if(catalog.converter.has(this.name))
+			data.catalog.add(this.name);
 	}
 	deathSFX = "Hit";
 	/**@param {Enemy} enemy*/

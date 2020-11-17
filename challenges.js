@@ -11,6 +11,19 @@ var challenges = {
 		edge: {
 			shape: "crownEdge",
 			shapeFill: "crownEdgeFill"
+		},
+		select() {
+			scoreAttack = true;
+			challenges.stop();
+			mainMenu.stop();
+			levelMenu.setup();
+			levelMenu.selectedList = [];
+			levelMenu.partyList = [];
+			levelMenu.items2 = levelMenu.items;
+			levelMenu.selected = 1;
+			levelMenu.active = 1;
+			levelMenu.startLevel();
+			onresize();
 		}
 	}, {
 		text: "Speedrun",
@@ -27,6 +40,7 @@ var challenges = {
 			speedrun = 1;
 			challenges.stop();
 			mainMenu.stop();
+			levelMenu.setup();
 			levelMenu.selectedList = [];
 			levelMenu.partyList = [];
 			levelMenu.items2 = levelMenu.items;

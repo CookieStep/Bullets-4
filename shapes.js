@@ -72,7 +72,7 @@ class Shape extends Path2D {
 	}
 	/**@type {Map<string, Shape>}*/
 	var shapes = new Map;
-	//Bases {}
+	//Bases
 	shapes.set("square", createShape(path => {
 		path.rect(0, 0, 1, 1);
 	}));
@@ -92,7 +92,26 @@ class Shape extends Path2D {
 			['lt', 0, r],
 			['qct', 0, 0, r, 0]
 		)
-		// Haha, I'mma go back to cleaning, I'll leave the originals commented tho just in case
+		// path.moveTo(r, 0);
+		// path.lineTo(1 - r, 0);
+		// path.quadraticCurveTo(1, 0, 1, r);
+		// path.lineTo(1, 1 - r);
+		// path.quadraticCurveTo(1, 1, 1 - r, 1);
+		// path.lineTo(r, 1);
+		// path.quadraticCurveTo(0, 1, 0, 1 - r);
+		// path.lineTo(0, r);
+		// path.quadraticCurveTo(0, 0, r, 0);
+	}));
+	shapes.set("corner3", createShape(path => {
+		var r = 1 / 3;
+		path.lineCreator(
+			['mt', 0, 0],
+			['lt', 1 - r, 0],
+			['qct', 1, 0, 1, r],
+			['lt', 1, 1],
+			['lt', 0, 1],
+			['lt', 0, 0]
+		);
 		// path.moveTo(r, 0);
 		// path.lineTo(1 - r, 0);
 		// path.quadraticCurveTo(1, 0, 1, r);
@@ -222,6 +241,31 @@ class Shape extends Path2D {
 		// path.lineTo(1 / 4, 2 / 5);
 		// path.closePath();
 		// path.rotation = PI / 2;
+	}));
+	shapes.set("arrowloop", createShape(path => {
+		var a = 7/32;
+		var b = 13/32;
+		//
+		var c = 1 - b;
+		var d = 1 - a;
+		//
+		var f = 1/4;
+		var g = 3/4;
+		//
+		var n = (b - a)/2;
+		//
+		path.moveTo(f, a);
+		path.quadraticCurveTo(d, a, d, g);
+		path.lineTo(d + n/2, g);
+		path.lineTo(d - n, g + n * 7/4);
+		path.lineTo(c - n/2, g);
+		path.lineTo(c, g);
+		path.quadraticCurveTo(c, b, f, b);
+		path.lineTo(f, b + n/2);
+		path.lineTo(f - n * 7/4, b - n);
+		path.lineTo(f, a - n/2);
+		path.closePath();
+		path.rotation = PI * 3/2;
 	}));
 	shapes.set("arrow2", createShape(path => {
 		//Top Triangle

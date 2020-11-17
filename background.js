@@ -5,7 +5,7 @@ class Background extends Shape{
     stroke = "#0000";
     update() {}
 }
-/**@param {(ctx: Background) => void script*/
+/**@param {(ctx: CanvasRenderingContext2D) => void script*/
 var createBackground = (script) => {
     var ctx = new Background;
     script(ctx);
@@ -72,4 +72,20 @@ bckdrpGen.set("level-1", (width, height) => createBackground(path => {
     path.lineTo(w * 5/6 - 3, h/2);
     path.lineTo(w/2 + 5, h);
     path.stroke = "#f00a";
+}));
+bckdrpGen.set("level-2", (width, height) => createBackground(path => {
+    var w = width/game.scale;
+    var h = height/game.scale;
+    var d = distance(w, h);
+    path.scale = game.scale;
+    for(var Rad = 0; Rad < PI * 2; Rad += PI/4) {
+        var rad = Rad;
+        path.moveTo(w/2, h/2);
+        for(var i = 0; i < d; i += 0.001 + i/20000) {
+            rad += PI/3000;
+            var p = point(rad, i);
+            path.lineTo(w/2 + p.x, h/2 + p.y);
+        }
+    }
+    path.stroke = "#f0fa";
 }));

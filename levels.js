@@ -8,13 +8,22 @@ function clearBad() {
 	enemies.clear();
 	particles.clear();
 	bullets.clear();
+	if(game.level == 0) heros.clear();
 	if(game.level < 1 || (player && player.alive)) return;
-	if(hardcore || !(player && player.lives)) player = undefined;
+	if(hardcore || !(player && floor(player.lives))) player = undefined;
 	game.score = 0;
 	heros.clear();
 	Hero.summon(game.hero);
 	exp.clear();
 	Hero.summonBulk(...game.party);
+}
+function basicLevelReset(level) {
+	if(player && !player.alive && keys.get("select") == 1) {
+		keys.set("select", 2);
+		level.currentPhase.reset();
+		clearBad();
+		game.reset();
+	}
 }
 var generateLevel = [
 	() => new levelReadable(
@@ -262,13 +271,7 @@ var generateLevel = [
 		)
 	),
 	() => new levelReadable(
-		(level) => {
-			if(player && !player.alive) {
-				level.currentPhase.reset();
-				clearBad();
-				game.reset();
-			}
-		},
+		basicLevelReset,
 		new levelPhase(
 			new levelPart({
 				setBackground: "level-1",
@@ -473,13 +476,7 @@ var generateLevel = [
 		)
 	),
 	() => new levelReadable(
-		(level) => {
-			if(player && !player.alive) {
-				level.currentPhase.reset();
-				clearBad();
-				game.reset();
-			}
-		},
+		basicLevelReset,
 		new levelPhase(
 			new levelPart({
 				summons: [{what: TheSummoner}],
@@ -498,6 +495,154 @@ var generateLevel = [
 				partPause: true
 			}),
 			new levelPart({mainMenu: true, levelComplete: true})
+		)
+	),
+	() => new levelReadable(
+		basicLevelReset,
+		new levelPhase(
+			new levelPart({
+				setBackground: "level-2",
+				summons: [{what: TopHat, get params() {
+					return [game.x2/4, game.y2/2];
+				}}],
+				nextPart: true
+			}),
+			new levelPart({
+				dialogue: [{
+					text: "Well, a promise is a promise.",
+					color: TopHat.textColor
+				}, {
+					text: "Time for those new recruits",
+					color: TopHat.textColor,
+					then: "nextPart"
+				}],
+				partPause: true
+			}),
+			new levelPart({
+				dialogue: [{
+					text: "Introducing...",
+					color: TopHat.textColor,
+					then: "nextPart"
+				}],
+				setEvent: {
+					curve1: true
+				},
+				partPause: true
+			}),
+			new levelPart({
+				wait: 1000,
+				startBgm: "Level-2",
+				dialogue: [{
+					text: "The swim team!",
+					color: TopHat.textColor,
+					then: "nextPhase"
+				}],
+				partPause: true
+			})
+		),
+		new levelPhase(
+			new levelPart({
+				setEvent: {
+					curve2: true
+				},
+				summons: [{what: Looper, amount: 3}, {what: Swerve, amount: 3}, {what: Around, amount: 4}],
+				waitUntilClear: true
+			}),
+			new levelPart({
+				wait: 500,
+				dialogue: [{
+					text: "What?",
+					color: TopHat.textColor,
+					continued: true
+				}, {
+					text: "What? You didn't think that was all, did you?",
+					color: TopHat.textColor,
+					then: "nextPhase"
+				}],
+				partPause: true
+			})
+		),
+		new levelPhase(
+			new levelPart({
+				dialogue: [{
+					text: "No no, your just in time for the performance.",
+					color: TopHat.textColor,
+					then: "nextPart"
+				}],
+				partPause: true
+			}),
+			new levelPart({
+				summons: [{
+					what: Around,
+					amount: 5
+				}],
+				nextPart: true
+			}),
+			new levelPart({
+				delay: 10000,
+				summons: [{
+					what: Around,
+					amount: 5
+				}],
+				nextPart: true
+			}),
+			new levelPart({
+				delay: 10000,
+				summons: [{
+					what: Swerve,
+					amount: 10
+				}],
+				nextPart: true
+			}),
+			new levelPart({
+				delay: 10000,
+				summons: [{
+					what: Looper,
+					amount: 5
+				}],
+				nextPart: true
+			}),
+			new levelPart({
+				delay: 10000,
+				summons: [{
+					what: Swerve,
+					amount: 5
+				}],
+				nextPart: true
+			}),
+			new levelPart({
+				delay: 10000,
+				summons: [{
+					what: Looper,
+					amount: 5
+				}],
+				nextPart: true
+			}),
+			new levelPart({
+				delay: 10000,
+				summons: [{
+					what: Swerve,
+					amount: 5
+				}],
+				waitUntilClear: true
+			})
+		),
+		new levelPhase(
+			new levelPart({
+				dialogue: [{
+					text: "You actually surivived, huh.",
+					color: TopHat.textColor
+				}, {
+					text: "Whatever. I'll just have to stop taking it easy on you",
+					color: TopHat.textColor,
+					then: "nextPart"
+				}],
+				partPause: true
+			}),
+			new levelPart({
+				levelComplete: true,
+				mainMenu: true
+			})
 		)
 	)
 ];

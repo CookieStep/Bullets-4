@@ -19,11 +19,12 @@ class TopHat extends Npc{
                 y = game.y2/2
             if(Entity.distance(this, {x, y}) > game.scale/5) this.moveTo(x, y);
         }
-        if(game.event.arena2) {
+        if(game.event.arena2 || game.event.curve1) {
             var x = game.x2/6,
                 y = game.y2/4
             if(Entity.distance(this, {x, y}) > game.scale/5) this.moveTo(x, y);
         }
+        if(game.event.curve2) this.hp = 0;
     }
     shape = "square4";
     color = "#ddd";

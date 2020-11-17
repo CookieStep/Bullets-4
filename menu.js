@@ -77,7 +77,7 @@ mainMenu.color2 = "red";
 mainMenu.run = function() {main(false); this.call(this)}
 mainMenu.selected = -1;
 mainMenu.items = [{
-	text: "Story mode",
+	text: "Free play",
 	color: "#fa5",
 	base: {
 		shape: "squareBase",
@@ -141,6 +141,9 @@ mainMenu.items = [{
 mainMenu.setup = function() {
 	player = undefined;
 	game.level = -1;
+	exp.clear();
+	npcs.clear();
+	heros.clear();
 	enemies.clear();
 	particles.clear();
 	bullets.clear();
