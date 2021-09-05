@@ -121,3 +121,6 @@ SFX.set("Spawn", new Sound({volume: 1}, {src: "SFX/Spawn.wav", type: "audio/wav"
 SFX.set("Text", new Sound({volume: 1}, {src: "SFX/Text.wav", type: "audio/wav"}));
 SFX.set("Wall", new Sound({volume: 0.25}, {src: "SFX/Wall.wav", type: "audio/wav"}, {src: "SFX/Wall2.wav", type: "audio/wav"}, {src: "SFX/Wall3.wav", type: "audio/wav"}));
 SFX.set("Xp", new Sound({volume: 0.25}, {src: "SFX/Xp.wav", type: "audio/wav"}, {src: "SFX/Xp2.wav", type: "audio/wav"}, {src: "SFX/Xp3.wav", type: "audio/wav"}, {src: "SFX/Xp4.wav", type: "audio/wav"}, {src: "SFX/Xp5.wav", type: "audio/wav"}));
+
+SFX.volume = .25;
+Music.volume = .25;
