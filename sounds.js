@@ -118,7 +118,7 @@ SFX.set("Hit", new Sound({volume: 1}, {src: "SFX/Hit.wav", type: "audio/wav"}, {
 SFX.set("PowerUp", new Sound({volume: 1}, {src: "SFX/PowerUp.wav", type: "audio/wav"}));
 SFX.set("Shoot", new Sound({volume: 0.5}, {src: "SFX/Shoot.wav", type: "audio/wav"}, {src: "SFX/Shoot2.wav", type: "audio/wav"}, {src: "SFX/Shoot3.wav", type: "audio/wav"}));
 SFX.set("Spawn", new Sound({volume: 1}, {src: "SFX/Spawn.wav", type: "audio/wav"}, {src: "SFX/Spawn2.wav", type: "audio/wav"}, {src: "SFX/Spawn3.wav", type: "audio/wav"}));
-SFX.set("Text", new Sound({volume: 1}, {src: "SFX/Text.wav", type: "audio/wav"}));
+SFX.set("Text", new Sound({volume: 0}, {src: "SFX/Text.wav", type: "audio/wav"}));
 SFX.set("Wall", new Sound({volume: 0.25}, {src: "SFX/Wall.wav", type: "audio/wav"}, {src: "SFX/Wall2.wav", type: "audio/wav"}, {src: "SFX/Wall3.wav", type: "audio/wav"}));
 SFX.set("Xp", new Sound({volume: 0.25}, {src: "SFX/Xp.wav", type: "audio/wav"}, {src: "SFX/Xp2.wav", type: "audio/wav"}, {src: "SFX/Xp3.wav", type: "audio/wav"}, {src: "SFX/Xp4.wav", type: "audio/wav"}, {src: "SFX/Xp5.wav", type: "audio/wav"}));
 
